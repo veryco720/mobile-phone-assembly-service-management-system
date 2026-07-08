@@ -11,8 +11,8 @@
            
 
                 <!-- SKILLS -->
-                <li class="nav-item has-treeview <?= ($this->uri->segment(2) == 'KaryawanController'|| $this->uri->segment(2) == 'UserController' || $this->uri->segment(2) == 'DetailController' || $this->uri->segment(2) == 'ProduksiController' || $this->uri->segment(2) == 'GudangController') ? 'menu-open' : ''; ?>">
-                    <a href="#" class="nav-link <?= ($this->uri->segment(2) == 'KaryawanController' || $this->uri->segment(2) == 'UserController' || $this->uri->segment(2) == 'DetailController' || $this->uri->segment(2) == 'ProduksiController' || $this->uri->segment(2) == 'GudangController') ? 'active' : ''; ?>">
+                <li class="nav-item has-treeview <?= ($this->uri->segment(2) == 'KaryawanController'|| $this->uri->segment(2) == 'UserController' || $this->uri->segment(2) == 'DetailController' || $this->uri->segment(2) == 'ProduksiController' || $this->uri->segment(2) == 'GudangController' || $this->uri->segment(2) == 'ProdukController' || $this->uri->segment(2) == 'SupplierController') ? 'menu-open' : ''; ?>">
+                    <a href="#" class="nav-link <?= ($this->uri->segment(2) == 'KaryawanController' || $this->uri->segment(2) == 'UserController' || $this->uri->segment(2) == 'DetailController' || $this->uri->segment(2) == 'ProduksiController' || $this->uri->segment(2) == 'GudangController' || $this->uri->segment(2) == 'ProdukController' || $this->uri->segment(2) == 'SupplierController') ? 'active' : ''; ?>">
                         <i class="nav-icon far fa-circle"></i>
                         <p>
                             Master 
@@ -56,6 +56,22 @@
                                 <a href="<?= base_url('data-gudang') ?>" class="nav-link <?= ($this->uri->segment(2) == 'GudangController') ? 'active' : ''; ?>">
                                     <i class="nav-icon fa fa-warehouse"></i>
                                     <p>Data Gudang</p>
+                                </a>
+                            </li>
+                    </ul>
+                    <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="<?= base_url('data-produk') ?>" class="nav-link <?= ($this->uri->segment(2) == 'ProdukController') ? 'active' : ''; ?>">
+                                    <i class="nav-icon fa fa-box"></i>
+                                    <p>Data Produk</p>
+                                </a>
+                            </li>
+                    </ul>
+                    <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="<?= base_url('data-supplier') ?>" class="nav-link <?= ($this->uri->segment(2) == 'SupplierController') ? 'active' : ''; ?>">
+                                    <i class="nav-icon fa fa-truck"></i>
+                                    <p>Data Supplier</p>
                                 </a>
                             </li>
                     </ul>
