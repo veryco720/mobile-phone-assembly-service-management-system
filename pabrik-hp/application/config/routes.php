@@ -52,6 +52,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $route['default_controller'] = 'welcome';
 $route['data-karyawan'] = 'pabrik/KaryawanController';
 $route['data-user'] = 'pabrik/UserController';
+$route['data-detail'] = 'pabrik/DetailController';
+$route['data-produksi'] = 'pabrik/ProduksiController';
+$route['dashboard'] = 'pabrik/DashboardController';
+$route['data-gudang'] = 'pabrik/GudangController';
 
 
 $route['404_override'] = '';
