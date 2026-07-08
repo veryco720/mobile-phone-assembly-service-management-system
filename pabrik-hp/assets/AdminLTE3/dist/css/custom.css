@@ -1,0 +1,120 @@
+.layout-navbar-fixed .wrapper .main-header {
+	background-color: #283345 !important;
+	border-bottom: 1px solid #4b545c;
+}
+
+.content-wrapper>.content {
+	background-color: #060818 !important;
+}
+
+.content-header {
+	background-color: #060818 !important;
+}
+
+
+.element{
+	background-color: #060818 !important;
+}
+
+/*footer*/
+
+.layout-footer-fixed .wrapper .main-footer {
+	background-color:  #060818 !important;
+}
+.main-footer {
+	border-top: 0px solid !important;
+}
+
+.layout-navbar-fixed .wrapper .sidebar-dark-primary .brand-link:not([class*=navbar]) {
+	background-color: #191e3a !important;
+}
+
+.sidebar {
+	padding: 0px 8px;
+	height: 100%;
+	width: 100%;
+	background-color: #191e3a !important;
+}
+
+.info-box{
+	color: 	#ffffff !important;
+	background-color: #0e1726 !important;
+}
+.card-body{
+	color: 	#ffffff !important;
+	background-color: #283345 !important;
+}
+.card-header{
+	color: 	#ffffff !important;
+	background-color: #0e1726 !important;
+}
+
+.card-footer{
+	color: 	#ffffff !important;
+	background-color: #0e1726 !important;
+}
+.form-control{
+	background-color: #1b2e4b !important;
+	color: #495057 !important;
+}
+.nav-link{
+	/*	background-color: #1b2e4b !important;*/
+	color: #ffffff !important;
+}
+
+.navbar-light .btn-navbar, .navbar-light .form-control-navbar {
+	background-color: #ffffff !important;
+}
+.item{
+	background-color: #1b2e4b !important;
+}
+.nav-itema{
+	background-color: #1b2e4b !important;
+	color: #ffffff !important;
+}
+.content-wrapper {
+
+	background-color: #060818 !important;
+}
+
+.row {
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	margin-right: -0px !important;
+	margin-left: -7.5px;
+}
+
+.sidebar-mini.layout-fixed.layout-navbar-fixed.layout-footer-fixed {
+	background-color: black !important;
+}
+
+
+/* custome field color */
+input.form-control {
+	color: #ededed !important;
+	letter-spacing: 2px;
+}
+
+.form-control-feedback {
+	color: #feb42d;
+	letter-spacing: 1.5px;
+}
+
+
+/*  custom nav-tab */
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+	color: white !important;
+	background-color: fuchsia !important;
+	/* border-color: #dee2e6 #dee2e6 #fff; */
+}
+.modal-content {
+	border: 7px solid rgba(0,0,0,.2) !important;
+	background-color: #283345 !important;
+}
+
+
+select.form-control {
+	color: #e8e8e8 !important;
+}

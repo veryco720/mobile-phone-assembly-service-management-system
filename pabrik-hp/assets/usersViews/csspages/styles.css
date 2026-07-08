@@ -1,0 +1,330 @@
+/* Mengatur font dan warna navbar */
+.navbar {
+	font-family: "Quicksand", sans-serif;
+	background-color: #f8f8f8; /* Warna latar belakang navbar */
+}
+
+.navbar-nav .nav-link {
+	color: #000000; /* Warna teks link */
+	font-weight: 500;
+	padding: 10px 15px;
+	transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+	color: #00aba9; /* Warna teks saat hover */
+}
+
+/* Atur font untuk item navbar saat di-collapse */
+.collapse .nav-item .nav-link {
+	font-size: 16px;
+}
+.hero-section {
+	min-height: 100vh; /* Hero section memenuhi layar penuh */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #f4f4f4;
+	background-size: cover;
+	background-position: center;
+	padding: 20px; /* Menambahkan padding agar tidak terlalu mepet */
+}
+.btn-daftar {
+	background-color: #ffc107; /* Warna hijau untuk tombol Daftar */
+	color: #fff;
+	border: none;
+	transition: none;
+}
+.btn-daftar:hover {
+	background-color: #ffc107; /* Tidak ada perubahan saat hover */
+	color: #fff; /* Tetap warna teks */
+}
+
+.btn-kontak {
+	background-color: #00aba9; /* Warna biru untuk tombol Kontak Us */
+	color: #fff;
+	border: none;
+	transition: none;
+}
+
+@media (max-width: 768px) {
+	.d-flex {
+		flex-direction: column; /* Membuat tombol bertumpuk di tampilan ponsel */
+		gap: 10px; /* Jarak antara tombol */
+	}
+
+	.btn-daftar,
+	.btn-kontak {
+		width: 80%; /* Tombol memenuhi lebar layar */
+		padding: 12px 0; /* Menambah tinggi tombol */
+		font-size: 1rem; /* Sesuaikan ukuran font agar proporsional */
+	}
+}
+.btn-kontak:hover {
+	background-color: #00aba9; /* Tidak ada perubahan saat hover */
+	color: #fff; /* Tetap warna teks */
+}
+
+.hero-text h2 {
+	color: #989797; /* Warna abu-abu */
+}
+.keunggulan-section {
+	font-family: "Quicksand", sans-serif;
+	background-color: #f4f4f4; /* Mengatur background light grey */
+	padding: 3rem 0; /* Menambahkan padding agar section lebih lebar */
+}
+
+.keunggulan-section .owl-carousel .item {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0; /* Menghapus margin antar item */
+	padding: 0; /* Menghapus padding */
+	transform: none;
+}
+
+.keunggulan-section .owl-carousel .item img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/* Mengatur warna teks untuk h3 */
+.keunggulan-section h4 {
+	font-size: 1.75rem;
+	font-weight: bold;
+	color: #00aba9; /* Warna hijau biru */
+	margin-bottom: 1rem; /* Menambahkan margin bawah untuk jarak yang lebih baik */
+}
+
+/* Ukuran font lebih kecil untuk tampilan ponsel */
+@media (max-width: 768px) {
+	.keunggulan-section h4 {
+		font-size: 1.2rem; /* Ukuran font lebih kecil untuk tampilan ponsel */
+	}
+}
+
+/* Mengatur warna teks untuk p */
+.keunggulan-section p {
+	font-size: 1rem;
+	color: #000000; /* Warna abu-abu untuk deskripsi */
+	margin-bottom: 2rem;
+}
+@media (max-width: 768px) {
+	.keunggulan-section p {
+		font-size: 0.7rem; /* Ukuran font lebih kecil untuk tampilan ponsel */
+	}
+}
+
+/* Set ukuran kartu tetap sama */
+.keunggulan-card {
+	background-color: #ffffff; /* warna latar belakang kartu default */
+	border: 1px solid #eaeaea; /* border kartu */
+	transition: box-shadow 0.3s ease, transform 0.3s ease;
+	height: 375px; /* Atur tinggi kartu sedikit lebih panjang */
+	width: 375px; /* Lebar kartu sedikit lebih sempit */
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	cursor: pointer; /* Menunjukkan bahwa kartu dapat di-hover */
+	margin: 0 10px; /* Mengurangi margin antar kartu */
+	border-radius: 15px;
+}
+
+/* Mengatur ukuran kartu jika ada teks panjang atau pendek */
+.keunggulan-card .card-title,
+.keunggulan-card .card-text {
+	margin: 0;
+	padding: 10px;
+	flex-grow: 1;
+}
+
+/* Hover effect */
+.keunggulan-card:hover {
+	background-color: #00aba9; /* Warna latar belakang hijau saat hover */
+}
+
+/* Mengubah warna teks menjadi putih saat hover */
+.keunggulan-card:hover .card-title,
+.keunggulan-card:hover .card-text {
+	color: white; /* Teks menjadi putih saat hover */
+}
+
+/* Warna teks default sebelum hover */
+.keunggulan-card .card-title {
+	font-weight: bold;
+	color: #000000; /* warna teks default */
+}
+
+.keunggulan-card .card-text {
+	font-size: 1.2rem;
+	color: #000000;
+}
+
+/* Mengatur Owl Carousel */
+.owl-carousel .item {
+	display: flex;
+	align-items: center; /* Menyelaraskan semua item secara vertikal */
+	justify-content: center; /* Menyelaraskan konten item secara horizontal */
+}
+
+.owl-stage {
+	display: flex;
+	justify-content: center; /* Memusatkan item dalam carousel */
+}
+.owl-carousel,
+.owl-stage-outer {
+	width: 100%; /* Memastikan lebar penuh */
+}
+.owl-carousel .owl-item {
+	display: flex;
+	justify-content: center; /* Agar item berada di tengah */
+}
+
+.testimoni-section {
+	font-family: "Quicksand", sans-serif;
+	background-color: #f4f4f4; /* Mengatur background light grey */
+	padding: 3rem 0; /* Menambahkan padding agar section lebih lebar */
+}
+
+/* Mengatur Owl Carousel untuk section testimoni */
+.testimoni-section .owl-carousel .item {
+	display: flex;
+	justify-content: center;
+	margin: 0 5px; /* Mengurangi jarak antar item */
+}
+
+.testimoni-section .keunggulan-card {
+	background-color: #00aba9; /* Langsung memberi warna latar belakang #00aba9 pada kartu */
+	border: 1px solid #eaeaea; /* Border kartu */
+	height: 375px; /* Tinggi kartu */
+	width: 375px; /* Lebar kartu */
+	display: flex;
+	flex-direction: column;
+	justify-content: center; /* Mengatur konten di tengah */
+	margin: 0 10px; /* Menambahkan margin antar kartu */
+	border-radius: 15px; /* Membuat sudut kartu melengkung */
+	color: #fff; /* Menjadikan teks putih agar kontras dengan latar belakang */
+	overflow: hidden; /* Menyembunyikan bagian gambar yang melampaui card */
+	position: relative;
+}
+
+.testimoni-section .keunggulan-card img {
+	width: 100%; /* Gambar mengisi lebar card */
+	height: 100%; /* Gambar mengisi tinggi card */
+	object-fit: cover; /* Memastikan gambar tetap proporsional */
+	transform: scale(1.3); /* Membesarkan gambar saat hover */
+}
+
+/* Warna teks untuk title dan description */
+.testimoni-section .keunggulan-card .card-title,
+.testimoni-section .keunggulan-card .card-text {
+	color: #fff; /* Teks tetap putih */
+}
+/* Mengatur jarak pada card testimoni di tampilan mobile */
+@media (max-width: 768px) {
+	.testimoni-section .owl-carousel .item {
+		padding: 0 5px; /* Menambahkan jarak di sisi kiri dan kanan setiap item */
+	}
+
+	.testimoni-section .keunggulan-card {
+		margin: 0 5px; /* Menambahkan jarak antara card */
+		width: 100%; /* Memastikan card mengisi lebar layar */
+	}
+
+	/* Pastikan gambar di dalam card menyesuaikan ukuran */
+	.testimoni-section .keunggulan-card img {
+		width: 100%; /* Membuat gambar mengisi lebar card */
+		height: auto; /* Menjaga proporsi gambar */
+	}
+}
+
+.testimoni-section h4 {
+	font-size: 1.75rem;
+	font-weight: bold;
+	color: #00aba9; /* Warna hijau biru */
+	margin-bottom: 1rem; /* Menambahkan margin bawah untuk jarak yang lebih baik */
+}
+
+/* Ukuran font lebih kecil untuk tampilan ponsel */
+@media (max-width: 768px) {
+	.testimoni-section h4 {
+		font-size: 1.2rem; /* Ukuran font lebih kecil untuk tampilan ponsel */
+	}
+}
+
+footer {
+	font-family: "Quicksand", sans-serif;
+	background-color: #f7fbfe;
+	padding: 20px;
+	border-top: 1px solid #ddd;
+}
+.footer-container {
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	padding-top: 20px;
+}
+.left,
+.center,
+.right {
+	flex: 1;
+	padding: 10px;
+	min-width: 200px;
+}
+.left p {
+	margin-bottom: 20px;
+}
+.social-icons {
+	display: flex;
+	gap: 10px;
+}
+.social-icons a {
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	border: 2px solid #7a5af8;
+	border-radius: 5px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+	color: #7a5af8;
+}
+.center ul,
+.right ul {
+	list-style: none;
+	padding: 0;
+}
+.center ul li,
+.right ul li {
+	margin-bottom: 10px;
+}
+.right ul li a {
+	text-decoration: none;
+	color: #333;
+}
+.right ul li a:hover {
+	text-decoration: underline;
+}
+.right ul li a.underline {
+	text-decoration: underline;
+}
+@media (max-width: 768px) {
+	.footer-container {
+		display: block; /* Ubah flex menjadi block untuk menghindari masalah dengan layout */
+	}
+
+	.footer-container .left,
+	.footer-container .center,
+	.footer-container .right {
+		width: 100%; /* Pastikan setiap bagian footer mengambil 100% lebar */
+		padding: 15px 0;
+		text-align: left;
+	}
+
+	.keunggulan-section .owl-carousel-container,
+	.testimoni-section .owl-carousel-container {
+		margin-bottom: 30px; /* Memberi jarak antara carousel dan footer */
+	}
+}
