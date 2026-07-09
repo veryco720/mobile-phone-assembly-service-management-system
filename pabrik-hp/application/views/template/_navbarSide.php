@@ -11,8 +11,8 @@
            
 
                 <!-- SKILLS -->
-                <li class="nav-item has-treeview <?= ($this->uri->segment(2) == 'KaryawanController'|| $this->uri->segment(2) == 'UserController' || $this->uri->segment(2) == 'DetailController' || $this->uri->segment(2) == 'ProduksiController' || $this->uri->segment(2) == 'GudangController' || $this->uri->segment(2) == 'ProdukController' || $this->uri->segment(2) == 'SupplierController') ? 'menu-open' : ''; ?>">
-                    <a href="#" class="nav-link <?= ($this->uri->segment(2) == 'KaryawanController' || $this->uri->segment(2) == 'UserController' || $this->uri->segment(2) == 'DetailController' || $this->uri->segment(2) == 'ProduksiController' || $this->uri->segment(2) == 'GudangController' || $this->uri->segment(2) == 'ProdukController' || $this->uri->segment(2) == 'SupplierController') ? 'active' : ''; ?>">
+                <li class="nav-item has-treeview <?= ($this->uri->segment(2) == 'KaryawanController'|| $this->uri->segment(2) == 'UserController' || $this->uri->segment(2) == 'DetailController' || $this->uri->segment(2) == 'ProduksiController' || $this->uri->segment(2) == 'GudangController' || $this->uri->segment(2) == 'ProdukController' || $this->uri->segment(2) == 'SupplierController' || $this->uri->segment(2) == 'QualityController' || $this->uri->segment(2) == 'KomponenController') ? 'menu-open' : ''; ?>">
+                    <a href="#" class="nav-link <?= ($this->uri->segment(2) == 'data-karyawan' || $this->uri->segment(2) == 'data-user' || $this->uri->segment(2) == 'data-detail' || $this->uri->segment(2) == 'data-produksi' || $this->uri->segment(2) == 'data-gudang' || $this->uri->segment(2) == 'data-produk' || $this->uri->segment(2) == 'data-supplier' || $this->uri->segment(2) == 'data-quality' || $this->uri->segment(2) == 'data-komponen') ? 'active' : ''; ?>">
                         <i class="nav-icon far fa-circle"></i>
                         <p>
                             Master 
@@ -75,6 +75,18 @@
                                 </a>
                             </li>
                     </ul>
+                    <li class="nav-item">
+                            <a href="<?= base_url('data-quality'); ?>" class="nav-link <?= ($this->uri->segment(2) == 'QualityController') ? 'active' : ''; ?>">
+                                <i class="nav-icon far fa-circle"></i>
+                                <p>Modul Quality</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('data-komponen'); ?>" class="nav-link <?= ($this->uri->segment(2) == 'KomponenController') ? 'active' : ''; ?>">
+                                <i class="nav-icon far fa-circle"></i>
+                                <p>Modul Komponen</p>
+                            </a>
+                    </li>
                 </li>
     
  

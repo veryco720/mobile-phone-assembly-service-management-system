@@ -58,6 +58,10 @@ $route['dashboard'] = 'pabrik/DashboardController';
 $route['data-gudang'] = 'pabrik/GudangController';
 $route['data-produk'] = 'pabrik/ProdukController';
 $route['data-supplier'] = 'pabrik/SupplierController';
+$route['data-quality'] = 'pabrik/QualityController';
+$route['data-komponen'] = 'pabrik/KomponenController';
+$route['login'] = 'login/LoginController';
+$route['logout'] = 'login/LoginController/logout';
 
 
 $route['404_override'] = '';
