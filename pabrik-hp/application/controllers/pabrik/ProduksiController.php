@@ -7,6 +7,10 @@ class ProduksiController extends CI_Controller
     {
         parent::__construct();
         $this->load->model('pabrik/produksi_model', 'model');
+
+        if ($this->session->userdata('is_login') != true) {
+            redirect('login/LoginController');
+        }
     }
 
     public function index()

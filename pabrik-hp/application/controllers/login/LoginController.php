@@ -8,7 +8,7 @@ class LoginController extends CI_Controller {
         parent::__construct();
         $this->load->database(); 
         $this->load->library('session'); 
-        $this->load->helper(array('url', 'encryption', 'percobaan'));
+        $this->load->helper(array('url', 'encryption'));
         $this->load->model('login/Login_model');
     }
 

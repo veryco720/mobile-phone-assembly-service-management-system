@@ -9,6 +9,10 @@ class UserController extends CI_Controller {
         //$this->load->helper('configsession');
         //cek_login();
         $this->load->model('pabrik/User_model', 'model');
+
+        if ($this->session->userdata('is_login') != true) {
+            redirect('login/LoginController');
+        }
     }
 
     public function index()

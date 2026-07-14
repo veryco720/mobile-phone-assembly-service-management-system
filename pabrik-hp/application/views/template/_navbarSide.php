@@ -75,18 +75,22 @@
                                 </a>
                             </li>
                     </ul>
-                    <li class="nav-item">
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
                             <a href="<?= base_url('data-quality'); ?>" class="nav-link <?= ($this->uri->segment(2) == 'QualityController') ? 'active' : ''; ?>">
                                 <i class="nav-icon far fa-circle"></i>
                                 <p>Modul Quality</p>
                             </a>
                         </li>
+                    </ul>
+                    <ul class="nav nav-treeview">
                         <li class="nav-item">
                             <a href="<?= base_url('data-komponen'); ?>" class="nav-link <?= ($this->uri->segment(2) == 'KomponenController') ? 'active' : ''; ?>">
                                 <i class="nav-icon far fa-circle"></i>
                                 <p>Modul Komponen</p>
                             </a>
-                    </li>
+                        </li>
+                    </ul>
                 </li>
     
  
