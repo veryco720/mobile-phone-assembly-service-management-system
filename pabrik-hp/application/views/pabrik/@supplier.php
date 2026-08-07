@@ -1,156 +1,233 @@
 <script>
-    model.masterModel = {
-        id_supplier: 0,
-        nama_supplier: "",
-        alamat: "",
-        telepon: "",
-        email: ""
-    }
-    var material = {
-        title: "Data Satuan",
-        Recordmaterial: ko.mapping.fromJS(model.masterModel),
-        Listmaterial: ko.observableArray([]),
-        Mode: ko.observable(''),
-        DataFilter: ko.observableArray(['nama_supplier']),
-        FilterText: ko.observable(''),
-        FilterValue: ko.observable('nama_supplier'),
+// ===================== MODEL UTAMA =====================
+// Model untuk data supplier (pemasok/vendor)
+// Dikembangkan: bisa tambahkan field seperti npwp, kontak_person, website, kategori, status, dll.
+model.masterModel = {
+    id_supplier: 0,
+    nama_supplier: "",
+    alamat: "",
+    telepon: "",
+    email: ""
+}
 
-        SELECTFILTERVALUE:  [
-            { name: 'nama_supplier', value: 'nama_supplier'},
-            { name: 'alamat', value: 'alamat'},
-            { name: 'telepon', value: 'telepon'},
-            { name: 'email', value: 'email'},
-        ],
-    }
+// ===================== OBJEK MATERIAL (MANAJEMEN SUPPLIER) =====================
+// Objek utama untuk mengelola data supplier
+// Dikembangkan: bisa tambahkan properti untuk filter berdasarkan kategori atau status supplier
+var material = {
+    title: "Data Satuan",
+    Recordmaterial: ko.mapping.fromJS(model.masterModel), // Model untuk form input
+    Listmaterial: ko.observableArray([]), // Untuk menyimpan list data (belum digunakan)
+    Mode: ko.observable(''), // Mode: '' = tambah, 'Update' = edit
+    DataFilter: ko.observableArray(['nama_supplier']), // Opsi filter yang tersedia
+    FilterText: ko.observable(''), // Teks pencarian
+    FilterValue: ko.observable('nama_supplier'), // Value filter yang dipilih
 
-     material.filtermaterial = function() {
-      material.grid.ajax.reload();
-    }
-    material.filterreset = function() {
-      material.FilterText('');
-      material.grid.ajax.reload(null, false);
-    }
+    // ===================== OPSI FILTER =====================
+    // Daftar kolom yang bisa difilter
+    // Dikembangkan: bisa tambahkan filter berdasarkan status atau kategori
+    SELECTFILTERVALUE:  [
+        { name: 'nama_supplier', value: 'nama_supplier'},
+        { name: 'alamat', value: 'alamat'},
+        { name: 'telepon', value: 'telepon'},
+        { name: 'email', value: 'email'},
+    ],
 
-    material.back = function(tab) {
-        material.Mode('');
-        material.grid.ajax.reload(null, false);
-        // $("input[name=txtkategoriId]").attr("disabled", false);
-        // $("input[name=txtJUDUL").attr("disabled", false);
-        ko.mapping.fromJS(model.masterModel, material.Recordmaterial);
-        model.activetab(tab);
-    }
+    // ===================== HAK AKSES =====================
+    // Properti untuk mengontrol button berdasarkan role user login
+    // Dikembangkan: bisa ditambah hak akses untuk export, print, atau import
+    canView   : ko.observable(false),
+    canInsert : ko.observable(false),
+    canUpdate : ko.observable(false),
+    canDelete : ko.observable(false),
 
-    material.selectdata = function(id) {
-        model.Processing(true);
-        ajaxPost("<?php echo site_url('pabrik/SupplierController/getDataSelect') ?>", {
-            id: id
-        }, function(res) {
-            console.log(res[0]);
-            material.back(0);
-            // $("input[name=txtJUDUL").attr("disabled", true);
-            ko.mapping.fromJS(res[0], material.Recordmaterial);
-            material.Mode("Update");
-            model.Processing(false);
-        });
-    }
+    // ===================== ROLE USER LOGIN =====================
+    // Menyimpan role dari session untuk pengecekan akses
+    // Dikembangkan: bisa ditambah multiple role atau user_id
+    role : ko.observable("<?= $this->session->userdata('role');?>"),
+}
 
-    material.save = function() {
-        model.Processing(true);
-        var val = material.Recordmaterial;
-        swal({
-            title: "Perhatian",
-            text: "Anda akan simpan data ini?",
-            type: "info",
-            className: 'animate_animated animate_fadeInUp',
-            showCancelButton: true,
-            confirmButtonColor: "#DD6B55",
-            confirmButtonText: "Yes!",
-            cancelButtonText: "No!",
-            closeOnConfirm: false,
-            showLoaderOnConfirm: true,
-            // timer: 1000,
-        }, function(isConfirm) {
-            if (isConfirm) {
-                if (material.Recordmaterial.nama_supplier() == "") {
-                    setTimeout(function() {
-                        swal("Peringatan!", "Data Harap diisi Dengan Benar!", "warning");
-                    }, );
-                } else {
-                    // end else
-                    if (showLoaderOnConfirm = true) {
+// ===================== FUNGSI FILTER DATA =====================
+// Memuat ulang DataTable dengan filter yang diterapkan
+// Dikembangkan: bisa tambahkan filter multiple atau filter custom
+material.filtermaterial = function() {
+    material.grid.ajax.reload();
+}
 
-                        var url = "<?php echo base_url('pabrik/SupplierController/save') ?>";
+// ===================== FUNGSI RESET FILTER =====================
+// Mereset filter dan menampilkan semua data
+// Dikembangkan: bisa reset ke filter default
+material.filterreset = function() {
+    material.FilterText('');
+    material.grid.ajax.reload(null, false);
+}
 
-                        if (material.Mode() === 'Update')
-                            url = "<?php echo base_url('pabrik/SupplierController/update') ?>";
+// ===================== FUNGSI KEMBALI =====================
+// Kembali ke tampilan list dan reset form
+// @param tab: tab yang akan diaktifkan (0=form, 1=list)
+// Dikembangkan: bisa tambahkan konfirmasi jika ada perubahan yang belum disimpan
+material.back = function(tab) {
+    material.Mode('');
+    material.grid.ajax.reload(null, false); // Reload DataTable
+    ko.mapping.fromJS(model.masterModel, material.Recordmaterial); // Reset form ke default
+    model.activetab(tab); // Pindah ke tab yang ditentukan
+}
 
-                        ajaxPost(url, material.Recordmaterial,
-                            function(res) {
-                                console.log(res.result);
-                                if (res.result == true || material.Mode() == "Update") {
-                                    if (res.result == true) {
+// ===================== FUNGSI SELECT DATA =====================
+// Mengambil data supplier berdasarkan ID untuk diedit
+// @param id: ID supplier yang akan diedit
+// Dikembangkan: bisa tambahkan loading animasi atau disabled form saat proses
+material.selectdata = function(id) {
+    model.Processing(true);
+    ajaxPost("<?php echo site_url('pabrik/SupplierController/getDataSelect') ?>", {
+        id: id
+    }, function(res) {
+        console.log(res[0]); // Debug: cek data yang diterima
+        material.back(0); // Pindah ke tab form
+        ko.mapping.fromJS(res[0], material.Recordmaterial); // Isi form dengan data
+        material.Mode("Update"); // Ubah mode menjadi Update
+        model.Processing(false);
+    });
+}
 
-                                        setTimeout(function() {
-                                            swal({
-                                                title: "Good job!",
-                                                text: "Data Berhasil di input!",
-                                                icon: "success",
-                                                /* sukses simpan / update */
-                                            });
-                                        }, 2000);
-                                    }
-                                    if (material.Mode() == "Update") {
+// ===================== FUNGSI SAVE =====================
+// Menyimpan data baru atau update data existing
+// Dikembangkan: bisa tambahkan validasi format email, no telepon, atau data duplikat
+material.save = function() {
+    model.Processing(true);
+    var val = material.Recordmaterial;
+    
+    // Konfirmasi sebelum menyimpan
+    swal({
+        title: "Perhatian",
+        text: "Anda akan simpan data ini?",
+        type: "info",
+        className: 'animate_animated animate_fadeInUp',
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes!",
+        cancelButtonText: "No!",
+        closeOnConfirm: false,
+        showLoaderOnConfirm: true,
+    }, function(isConfirm) {
+        if (isConfirm) {
+            // Validasi: Nama supplier harus diisi
+            // Dikembangkan: tambahkan validasi untuk field lain (email, telepon, dll.)
+            if (material.Recordmaterial.nama_supplier() == "") {
+                setTimeout(function() {
+                    swal("Peringatan!", "Data Harap diisi Dengan Benar!", "warning");
+                }, );
+            } else {
+                // Proses simpan
+                if (showLoaderOnConfirm = true) {
+                    // Tentukan URL berdasarkan mode (Insert atau Update)
+                    // Dikembangkan: bisa tambahkan endpoint untuk bulk insert
+                    var url = "<?php echo base_url('pabrik/SupplierController/save') ?>";
+                    if (material.Mode() === 'Update')
+                        url = "<?php echo base_url('pabrik/SupplierController/update') ?>";
 
-                                        setTimeout(function() {
-                                            swal({
-                                                title: "Good job!",
-                                                text: "Data Berhasil di ubah!",
-                                                icon: "success",
-                                                /* sukses simpan / update */
-                                            });
-                                        }, 2000);
-                                    }
-                                    material.back(1);
-                                }
-                            });
-                    }
+                    // Kirim data ke server
+                    ajaxPost(url, material.Recordmaterial, function(res) {
+                        console.log(res.result);
+                        if (res.result == true || material.Mode() == "Update") {
+                            // Notifikasi sukses sesuai mode
+                            if (res.result == true) {
+                                setTimeout(function() {
+                                    swal({
+                                        title: "Good job!",
+                                        text: "Data Berhasil di input!",
+                                        icon: "success",
+                                    });
+                                }, 2000);
+                            }
+                            if (material.Mode() == "Update") {
+                                setTimeout(function() {
+                                    swal({
+                                        title: "Good job!",
+                                        text: "Data Berhasil di ubah!",
+                                        icon: "success",
+                                    });
+                                }, 2000);
+                            }
+                            material.back(1); // Kembali ke list setelah sukses
+                        }
+                    });
                 }
             }
-            model.Processing(false);
-        }); // END isconfirm swal
+        }
         model.Processing(false);
-    }
-    material.remove = function(id) {
-        swal({
-            title: "Are you sure?",
-            text: "Delete this data?",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#DD6B55",
-            confirmButtonText: "Yes!",
-            cancelButtonText: "No!",
-            closeOnConfirm: false,
-        }, function(isConfirm) {
-            if (isConfirm) {
-                ajaxPost("<?php echo base_url('pabrik/SupplierController/delete') ?>", {
-                    id_supplier: id // Pastikan ini adalah ID yang benar
-                }, function(res) {
-                    if (res.result) {
-                        // Jika berhasil dihapus
-                        material.back(1);
-                        swal("Deleted!", "Data has been deleted successfully.", "success");
-                    } else {
-                        // Jika gagal dihapus karena ada relasi
-                        swal("Failed!", res.message, "warning");
-                    }
-                });
+    }); // END isconfirm swal
+    model.Processing(false);
+}
+
+// ===================== FUNGSI DELETE =====================
+// Menghapus data supplier berdasarkan ID
+// @param id: ID supplier yang akan dihapus
+// Dikembangkan: bisa tambahkan validasi jika supplier memiliki relasi (komponen, pesanan, dll.)
+material.remove = function(id) {
+    swal({
+        title: "Are you sure?",
+        text: "Delete this data?",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes!",
+        cancelButtonText: "No!",
+        closeOnConfirm: false,
+    }, function(isConfirm) {
+        if (isConfirm) {
+            ajaxPost("<?php echo base_url('pabrik/SupplierController/delete') ?>", {
+                id_supplier: id // Pastikan ini adalah ID yang benar
+            }, function(res) {
+                if (res.result) {
+                    // Jika berhasil dihapus
+                    material.back(1);
+                    swal("Deleted!", "Data has been deleted successfully.", "success");
+                } else {
+                    // Jika gagal dihapus karena ada relasi
+                    swal("Failed!", res.message, "warning");
+                }
+            });
+        }
+    });
+};
+
+// ===================== FUNGSI CHECK ROLE =====================
+// Mengecek hak akses user berdasarkan role
+// Dikembangkan: bisa ditambah cache atau multiple modul
+material.checkRole = function(){
+    ajaxPost("<?php echo site_url('pabrik/AksesController/getAkses')?>",
+        {
+            role : material.role() // Role dari session
+        },
+        function(rows){
+            // Cari akses untuk modul Supplier (id_modul = 4)
+            // Dikembangkan: bisa dibuat dinamis berdasarkan modul yang aktif
+            var akses = rows.find(function(item){
+                return item.id_modul == 4;
+            });
+            if(akses){
+                // Set hak akses berdasarkan data dari database
+                material.canView(Number(akses.can_view)===1);
+                material.canInsert(Number(akses.can_insert)===1);
+                material.canUpdate(Number(akses.can_update)===1);
+                material.canDelete(Number(akses.can_delete)===1);
             }
-        });
-    }
+            // Debug: cek hak akses yang didapat
+            console.log("canInsert", material.canInsert());
+            console.log("canUpdate", material.canUpdate());
+            console.log("canDelete", material.canDelete());
+        }
+    );
+};
 </script>
 
+<!-- ===================== TAMPILAN HTML ===================== -->
+<!-- Layout untuk halaman manajemen supplier -->
+<!-- Dikembangkan: bisa ditambah breadcrumb, statistik supplier, atau grafik -->
 <div class="content-wrapper">
 
+    <!-- ===================== HEADER HALAMAN ===================== -->
+    <!-- Bagian title dan breadcrumb -->
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -161,88 +238,162 @@
         </div>
     </section>
 
+    <!-- ===================== MAIN CONTENT ===================== -->
     <section class="content">
-
         <div class="container-fluid">
             <div class="row" data-bind="with: material">
                 <div class="col-md-12">
-                    <!-- Nav tab -->
+                    
+                    <!-- ===================== NAVIGASI TAB ===================== -->
+                    <!-- Tab navigasi antara Form dan List Data -->
+                    <!-- Dikembangkan: bisa tambahkan tab untuk import/export data supplier -->
                     <ul class="nav nav-tabs customtab" id="tabnavform">
-                        <li class="nav-item"><a class="nav-link active" href="#tabform" data-toggle="tab">Form</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#tablist" data-toggle="tab">List</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#tabform" data-toggle="tab" data-bind="visible: canInsert">
+                                Form
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#tablist" data-toggle="tab">
+                                List
+                            </a>
+                        </li>
                     </ul>
-                    <!-- end Nav Tab -->
-
+                    
+                    <!-- ===================== KONTEN TAB ===================== -->
                     <div class="content tab-content" id="tabnavform-content">
+                        
+                        <!-- ===================== TAB FORM ===================== -->
+                        <!-- Form untuk tambah/edit data supplier -->
+                        <!-- Dikembangkan: bisa tambahkan input untuk NPWP, kontak person, atau kategori -->
                         <div class="tab-pane active" id="tabform">
                             <div class="card card-primary">
                                 <div class="card-body p-20 animated fadeIn m">
+                                    
+                                    <!-- ===================== TOMBOL AKSI FORM ===================== -->
+                                    <!-- Button untuk save, back, dan delete -->
+                                    <!-- Dikembangkan: bisa tambahkan tombol reset atau duplicate -->
                                     <div class="row p-t-23 margMin">
                                         <div class="col-md-12 margMin">
                                             <div class="form-group ">
-                                                <button class="btn btn-sm btn-warning" data-bind="click:function(){back(1);}, visible: Mode() == 'Update'" data-toggle="tooltip" data-placement="top" data-original-title="Kembali"><i class="fa fa-arrow-left"></i> </button>
-
-                                                <button class="btn btn-sm btn-info" data-bind="click:save" data-toggle="tooltip" data-placement="top" data-original-title="simpan"> <span data-bind="data-original-title:Mode"><i class="fa fa-save"></i> </span></button>
-
-                                                <button class="btn btn-sm btn-danger" data-bind="click:function(){remove(Recordmaterial.id_supplier());}, visible: Mode() == 'Update'"></span><i class="fa fa-trash"></i></button>
+                                                <!-- Tombol Kembali (hanya saat mode Update) -->
+                                                <button class="btn btn-sm btn-warning" 
+                                                        data-bind="click:function(){back(1);}, visible: Mode() == 'Update'" 
+                                                        data-toggle="tooltip" data-placement="top" data-original-title="Kembali">
+                                                    <i class="fa fa-arrow-left"></i> 
+                                                </button>
+                                                
+                                                <!-- Tombol Simpan -->
+                                                <button class="btn btn-sm btn-info" 
+                                                        data-bind="click:save" 
+                                                        data-toggle="tooltip" data-placement="top" data-original-title="simpan">
+                                                    <span data-bind="data-original-title:Mode">
+                                                        <i class="fa fa-save"></i> 
+                                                    </span>
+                                                </button>
+                                                
+                                                <!-- Tombol Hapus (hanya saat mode Update dan punya hak akses) -->
+                                                <button class="btn btn-sm btn-danger" 
+                                                        data-bind="click:function(){remove(Recordmaterial.id_supplier());}, visible: Mode() == 'Update' && canDelete()" 
+                                                        data-toggle="tooltip" data-placement="top" data-original-title="hapus">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
+                                    
+                                    <!-- ===================== FIELD FORM ===================== -->
+                                    <!-- Dikembangkan: bisa tambahkan validasi inline atau tooltip help -->
                                     <div class="card-body" data-bind="with:Recordmaterial">
+                                        
+                                        <!-- Field: NAMA SUPPLIER -->
+                                        <!-- Dikembangkan: bisa tambahkan validasi minimal panjang karakter -->
                                         <div class="form-group">
                                             <label for="level">nama_supplier</label>
-                                            <input type="text" name="level" class="form-control" data-bind="value:nama_supplier" id="idinstansi" placeholder="Masukkan nama supplier">
+                                            <input type="text" name="level" class="form-control" 
+                                                   data-bind="value:nama_supplier" id="idinstansi" 
+                                                   placeholder="Masukkan nama supplier">
                                         </div>
+                                        
+                                        <!-- Field: ALAMAT -->
+                                        <!-- Dikembangkan: bisa tambahkan autocomplete alamat atau validasi -->
                                         <div class="form-group">
                                             <label for="alamat">alamat</label>
-                                            <input type="text" name="alamat" class="form-control" data-bind="value:alamat" id="alamat" placeholder="Masukkan alamat">
+                                            <input type="text" name="alamat" class="form-control" 
+                                                   data-bind="value:alamat" id="alamat" 
+                                                   placeholder="Masukkan alamat">
                                         </div>
+                                        
+                                        <!-- Field: TELEPON -->
+                                        <!-- Dikembangkan: bisa tambahkan validasi format nomor telepon -->
                                         <div class="form-group">
                                             <label for="telepon">telepon</label>
-                                            <input type="text" name="telepon" class="form-control" data-bind="value:telepon" id="telepon" placeholder="Masukkan telepon">
+                                            <input type="text" name="telepon" class="form-control" 
+                                                   data-bind="value:telepon" id="telepon" 
+                                                   placeholder="Masukkan telepon">
                                         </div>
+                                        
+                                        <!-- Field: EMAIL -->
+                                        <!-- Dikembangkan: bisa tambahkan validasi format email -->
                                         <div class="form-group">
                                             <label for="email">email</label>
-                                            <input type="email" name="email" class="form-control" data-bind="value:email" id="email" placeholder="Masukkan email">
+                                            <input type="email" name="email" class="form-control" 
+                                                   data-bind="value:email" id="email" 
+                                                   placeholder="Masukkan email">
                                         </div>
-                                    </div>
+                                    </div> <!-- end card-body Recordmaterial -->
                                 </div>
                             </div>
-                        </div>
-
+                        </div> <!-- end tabform -->
+                        
+                        <!-- ===================== TAB LIST ===================== -->
+                        <!-- Tabel untuk menampilkan semua data supplier -->
+                        <!-- Dikembangkan: bisa tambahkan export Excel, print, atau column visibility -->
                         <div class="tab-pane card card-white" id="tablist">
                             <div class="card-body p-20" data-bind="with:material">
                                 <div class="row p-t-23 ">
-                                    <!-- filter -->
-                                        <div class="col-sm-4 col-md-2">
-                                                <fieldset class="form-group">
-                                                    <select name="" data-bind="
-                                                    options: SELECTFILTERVALUE,
-                                                    optionsText: 'name',
-                                                    optionsValue: 'value',
-                                                    value:FilterValue"
-                                                    class="form-control" id="basicSelect">
-                                                </select>
-                                            </fieldset>
+                                    
+                                    <!-- ===================== FILTER DATA ===================== -->
+                                    <!-- Panel filter untuk pencarian data -->
+                                    <!-- Dikembangkan: bisa tambahkan filter berdasarkan status atau kategori -->
+                                    <div class="col-sm-4 col-md-2">
+                                        <fieldset class="form-group">
+                                            <select name="" data-bind="
+                                                options: SELECTFILTERVALUE,
+                                                optionsText: 'name',
+                                                optionsValue: 'value',
+                                                value:FilterValue"
+                                                class="form-control" id="basicSelect">
+                                            </select>
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-sm-2 col-md-3">
+                                        <div class="form-group ">
+                                            <input data-bind="value:FilterText, event: { keyup: function(data, event) {
+                                                        if (event.key === 'Enter') material.filtermaterial();
+                                                    }}" id="" placeholder="Filter by data" class="form-control">
+                                            <p>
+                                                <small class="text-muted">ketik <i>yang anda mau cari</i> lalu <b>Enter</b></small>
+                                            </p>
                                         </div>
-                                        <div class="col-sm-2 col-md-3">
-                                            <div class="form-group ">
-                                                <input data-bind="value:FilterText, event: { keyup: function(data, event) {
-                                                                               if (event.key === 'Enter') material.filtermaterial();
-                                                                        }}" id="" placeholder="Filter by data" class="form-control">
-                                                <p>
-                                                    <small class="text-muted">ketik <i>yang anda mau cari</i> lalu <b>Enter</b></small>
-                                                </p>
-                                            </div>
+                                    </div>
+                                    <div class="col-sm-2 col-md-5 margFilter">
+                                        <div class="form-group ">
+                                            <!-- Tombol Reset Filter -->
+                                            <button class="btn btn-md btn-danger" data-bind="click:filterreset">
+                                                <span class="fa fa-retweet"></span>
+                                            </button>
+                                            <!-- Tombol Apply Filter -->
+                                            <button class="btn btn-md btn-primary" data-bind="click:filtermaterial">
+                                                <span class="fa fa-search"></span>
+                                            </button>
                                         </div>
-                                        <div class="col-sm-2 col-md-5 margFilter">
-                                            <div class="form-group ">
-                                                <button class="btn btn-md btn-danger" data-bind="click:filterreset"><span class="fa fa-retweet"></span></button>
-                                                <button class="btn btn-md btn-primary" data-bind="click:filtermaterial"><span class="fa fa-search"></span></button>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- ./filter -->
+                                    </div>
+                                    <!-- ./filter -->
+                                    
+                                    <!-- ===================== TABEL DATA SUPPLIER ===================== -->
+                                    <!-- DataTable untuk menampilkan list supplier -->
+                                    <!-- Dikembangkan: bisa tambahkan sorting, pagination, atau row selection -->
                                     <div class="col-md-12">
                                         <div class="table-responsive m-t-40 animated fadeIn">
                                             <table id="myTable" width="100%" class="table table-bordered table-striped ">
@@ -254,7 +405,6 @@
                                                         <th>telepon</th>
                                                         <th>email</th>
                                                         <th>Action</th>
-
                                                     </tr>
                                                 </thead>
                                             </table>
@@ -262,25 +412,32 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <!-- </div> -->
-                </div> <!-- end content form -->
-                <!-- end table -->
-            </div>
-        </div>
+                        </div> <!-- end tablist -->
+                        
+                    </div> <!-- end tab-content -->
+                </div> <!-- end col -->
+            </div> <!-- end row -->
+        </div> <!-- end container-fluid -->
     </section>
-    <!-- end content -->
+</div> <!-- end content-wrapper -->
 
-</div>
-<!-- end wrapper -->
-
-
-
+<!-- ===================== INITIALIZATION ===================== -->
+<!-- Script untuk inisialisasi DataTable dan loading data awal -->
+<!-- Dikembangkan: bisa ditambah error handling, atau reload otomatis -->
 <script>
     $(document).ready(function() {
         model.Processing(true);
+        
+        // Inisialisasi: Cek hak akses user
+        // Dikembangkan: bisa ditambah loading data master lainnya (kategori supplier, dll.)
+        material.checkRole();
+        
+        // Set tab default
+        model.activetab(1);
 
+        // ===================== INISIALISASI DATATABLE =====================
+        // Konfigurasi DataTable untuk server-side processing
+        // Dikembangkan: bisa ditambah opsi export, responsive, atau scroll
         material.grid = $("#myTable").DataTable({
             "processing": true,
             "serverSide": true,
@@ -288,41 +445,50 @@
                 "url": "<?php echo base_url('pabrik/SupplierController/getData') ?>",
                 "type": "POST",
                 "data": function(d) {
+                    // Kirim data filter ke server
                     d['filtervalue'] = material.FilterValue();
                     d['filtertext'] = material.FilterText();
                     return d;
                 },
                 "dataSrc": function(json) {
-                    // json.draw = 1;
+                    // Mapping response dari server ke DataTable format
                     json.recordsTotal = json.RecordsTotal;
                     json.recordsFiltered = json.RecordsFiltered;
-
+                    
                     if (json.Data)
                         return json.Data;
                     else
                         return [];
                 },
             },
-            "searching": false,
-            "columns": [{
-                    "data": "id_supplier"
-                },
-                {
-                    "data": "nama_supplier"
-                },
-                {
-                    "data": "alamat"
-                },
-                {
-                    "data": "telepon"
-                },
-                {
-                    "data": "email"
-                },
+            "searching": false, // Nonaktifkan search bawaan DataTable
+            "columns": [
+                { "data": "id_supplier" }, // Kolom ID Supplier
+                { "data": "nama_supplier" }, // Kolom Nama Supplier
+                { "data": "alamat" }, // Kolom Alamat
+                { "data": "telepon" }, // Kolom Telepon
+                { "data": "email" }, // Kolom Email
                 {
                     "data": "id_supplier",
-                    "render": function(data, type, full, meta) {
-                        return "<button class='btn btn-sm btn-info' onClick='material.selectdata(\"" + data + "\")'><i class='fa fa-edit'></i></button> &nbsp; <button  id='sa-warning' class='btn btn-sm btn-danger' onClick='material.remove(\"" + data + "\")' id='sa-warning' ><i class='fa fa-trash'></i></button>";
+                    "render": function(data) {
+                        // Render tombol aksi berdasarkan hak akses
+                        var tombol = "";
+                        
+                        // Tombol Edit (jika punya akses update)
+                        if(material.canUpdate()){
+                            tombol += "<button class='btn btn-sm btn-info' onClick='material.selectdata(\"" + data + "\")'><i class='fa fa-edit'></i></button> ";
+                        }
+                        
+                        // Tombol Delete (jika punya akses delete)
+                        if(material.canDelete()){
+                            tombol += "<button class='btn btn-sm btn-danger' onClick='material.remove(\"" + data + "\")'><i class='fa fa-trash'></i></button>";
+                        }
+                        
+                        // Kalau tidak punya hak apa pun
+                        if(tombol == ""){
+                            return "-";
+                        }
+                        return tombol;
                     }
                 }
             ],
