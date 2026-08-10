@@ -1,49 +1,34 @@
 <script>
 // ===================== MODEL UTAMA =====================
-// Model untuk data supplier (pemasok/vendor)
-// Dikembangkan: bisa tambahkan field seperti npwp, kontak_person, website, kategori, status, dll.
+// Model untuk data akses/role
+// Dikembangkan: bisa tambahkan properti seperti deskripsi role, created_by, created_date, dll.
 model.masterModel = {
-    id_supplier: 0,
-    nama_supplier: "",
-    alamat: "",
-    telepon: "",
-    email: ""
+    role : ""
 }
 
-// ===================== OBJEK MATERIAL (MANAJEMEN SUPPLIER) =====================
-// Objek utama untuk mengelola data supplier
-// Dikembangkan: bisa tambahkan properti untuk filter berdasarkan kategori atau status supplier
+// ===================== OBJEK MATERIAL (MANAJEMEN AKSES) =====================
+// Objek utama untuk mengelola hak akses berdasarkan role
+// Dikembangkan: bisa tambahkan properti untuk logging aktivitas atau history perubahan
 var material = {
     title: "Data Satuan",
     Recordmaterial: ko.mapping.fromJS(model.masterModel), // Model untuk form input
     Listmaterial: ko.observableArray([]), // Untuk menyimpan list data (belum digunakan)
     Mode: ko.observable(''), // Mode: '' = tambah, 'Update' = edit
-    DataFilter: ko.observableArray(['nama_supplier']), // Opsi filter yang tersedia
+    DataFilter: ko.observableArray(['role']), // Opsi filter yang tersedia
     FilterText: ko.observable(''), // Teks pencarian
-    FilterValue: ko.observable('nama_supplier'), // Value filter yang dipilih
-
+    FilterValue: ko.observable('role'), // Value filter yang dipilih
+    
+    // ===================== LIST AKSES =====================
+    // Menyimpan data akses per modul untuk role tertentu
+    // Dikembangkan: bisa ditambah fitur untuk copy akses dari role lain
+    ListAkses: ko.observableArray([]),
+    
     // ===================== OPSI FILTER =====================
     // Daftar kolom yang bisa difilter
-    // Dikembangkan: bisa tambahkan filter berdasarkan status atau kategori
+    // Dikembangkan: bisa tambahkan filter berdasarkan modul atau jumlah user
     SELECTFILTERVALUE:  [
-        { name: 'nama_supplier', value: 'nama_supplier'},
-        { name: 'alamat', value: 'alamat'},
-        { name: 'telepon', value: 'telepon'},
-        { name: 'email', value: 'email'},
+        { name: 'ROLE', value: 'role'},
     ],
-
-    // ===================== HAK AKSES =====================
-    // Properti untuk mengontrol button berdasarkan role user login
-    // Dikembangkan: bisa ditambah hak akses untuk export, print, atau import
-    canView   : ko.observable(false),
-    canInsert : ko.observable(false),
-    canUpdate : ko.observable(false),
-    canDelete : ko.observable(false),
-
-    // ===================== ROLE USER LOGIN =====================
-    // Menyimpan role dari session untuk pengecekan akses
-    // Dikembangkan: bisa ditambah multiple role atau user_id
-    role : ko.observable("<?= $this->session->userdata('role');?>"),
 }
 
 // ===================== FUNGSI FILTER DATA =====================
@@ -68,33 +53,42 @@ material.filterreset = function() {
 material.back = function(tab) {
     material.Mode('');
     material.grid.ajax.reload(null, false); // Reload DataTable
-    ko.mapping.fromJS(model.masterModel, material.Recordmaterial); // Reset form ke default
+    ko.mapping.fromJS(model.masterModel, material.Recordmaterial); // Reset form
     model.activetab(tab); // Pindah ke tab yang ditentukan
 }
 
 // ===================== FUNGSI SELECT DATA =====================
-// Mengambil data supplier berdasarkan ID untuk diedit
-// @param id: ID supplier yang akan diedit
-// Dikembangkan: bisa tambahkan loading animasi atau disabled form saat proses
-material.selectdata = function(id) {
+// Mengambil data akses berdasarkan role untuk diedit
+// @param role: role yang akan diedit aksesnya
+// Dikembangkan: bisa tambahkan loading animasi atau preview akses
+material.selectdata = function(role) {
     model.Processing(true);
-    ajaxPost("<?php echo site_url('pabrik/SupplierController/getDataSelect') ?>", {
-        id: id
+    // Ambil data role dari server
+    // Dikembangkan: bisa tambahkan cache untuk mempercepat loading
+    ajaxPost("<?php echo site_url('pabrik/AksesController/getDataSelect') ?>", {
+        role: role
     }, function(res) {
         console.log(res[0]); // Debug: cek data yang diterima
         material.back(0); // Pindah ke tab form
         ko.mapping.fromJS(res[0], material.Recordmaterial); // Isi form dengan data
+        material.loadAkses(material.Recordmaterial.role()); // Load akses untuk role tersebut
         material.Mode("Update"); // Ubah mode menjadi Update
         model.Processing(false);
     });
 }
 
 // ===================== FUNGSI SAVE =====================
-// Menyimpan data baru atau update data existing
-// Dikembangkan: bisa tambahkan validasi format email, no telepon, atau data duplikat
+// Menyimpan data akses untuk role tertentu
+// Dikembangkan: bisa tambahkan validasi agar tidak ada role yang kehilangan akses
 material.save = function() {
     model.Processing(true);
-    var val = material.Recordmaterial;
+    
+    // Siapkan data yang akan disimpan (role + daftar akses)
+    // Dikembangkan: bisa tambahkan data tambahan seperti alasan perubahan
+    var val = {
+        role : material.Recordmaterial.role(),
+        akses : ko.toJS(material.ListAkses) // Konversi observable ke JS object
+    };
     
     // Konfirmasi sebelum menyimpan
     swal({
@@ -110,26 +104,23 @@ material.save = function() {
         showLoaderOnConfirm: true,
     }, function(isConfirm) {
         if (isConfirm) {
-            // Validasi: Nama supplier harus diisi
-            // Dikembangkan: tambahkan validasi untuk field lain (email, telepon, dll.)
-            if (material.Recordmaterial.nama_supplier() == "") {
+            // Validasi role tidak boleh kosong
+            if (material.Recordmaterial.role() == "") {
                 setTimeout(function() {
                     swal("Peringatan!", "Data Harap diisi Dengan Benar!", "warning");
                 }, );
             } else {
                 // Proses simpan
                 if (showLoaderOnConfirm = true) {
-                    // Tentukan URL berdasarkan mode (Insert atau Update)
-                    // Dikembangkan: bisa tambahkan endpoint untuk bulk insert
-                    var url = "<?php echo base_url('pabrik/SupplierController/save') ?>";
-                    if (material.Mode() === 'Update')
-                        url = "<?php echo base_url('pabrik/SupplierController/update') ?>";
-
+                    // URL untuk update (karena ini hanya update akses)
+                    // Dikembangkan: bisa ditambah endpoint untuk insert role baru
+                    var url = "<?php echo base_url('pabrik/AksesController/update') ?>";
+                    
                     // Kirim data ke server
-                    ajaxPost(url, material.Recordmaterial, function(res) {
+                    ajaxPost(url, val, function(res) {
                         console.log(res.result);
                         if (res.result == true || material.Mode() == "Update") {
-                            // Notifikasi sukses sesuai mode
+                            // Notifikasi sukses
                             if (res.result == true) {
                                 setTimeout(function() {
                                     swal({
@@ -148,7 +139,7 @@ material.save = function() {
                                     });
                                 }, 2000);
                             }
-                            material.back(1); // Kembali ke list setelah sukses
+                            material.back(1); // Kembali ke list
                         }
                     });
                 }
@@ -160,10 +151,10 @@ material.save = function() {
 }
 
 // ===================== FUNGSI DELETE =====================
-// Menghapus data supplier berdasarkan ID
-// @param id: ID supplier yang akan dihapus
-// Dikembangkan: bisa tambahkan validasi jika supplier memiliki relasi (komponen, pesanan, dll.)
-material.remove = function(id) {
+// Menghapus role dan semua aksesnya
+// @param role: role yang akan dihapus
+// Dikembangkan: bisa tambahkan validasi jika role masih digunakan oleh user
+material.remove = function(role) {
     swal({
         title: "Are you sure?",
         text: "Delete this data?",
@@ -175,55 +166,59 @@ material.remove = function(id) {
         closeOnConfirm: false,
     }, function(isConfirm) {
         if (isConfirm) {
-            ajaxPost("<?php echo base_url('pabrik/SupplierController/delete') ?>", {
-                id_supplier: id // Pastikan ini adalah ID yang benar
+            ajaxPost("<?php echo base_url('pabrik/AksesController/delete') ?>", {
+                role: role
             }, function(res) {
                 if (res.result) {
                     // Jika berhasil dihapus
                     material.back(1);
                     swal("Deleted!", "Data has been deleted successfully.", "success");
                 } else {
-                    // Jika gagal dihapus karena ada relasi
+                    // Jika gagal dihapus karena ada relasi atau error lain
                     swal("Failed!", res.message, "warning");
                 }
             });
         }
     });
-};
+}
 
-// ===================== FUNGSI CHECK ROLE =====================
-// Mengecek hak akses user berdasarkan role
-// Dikembangkan: bisa ditambah cache atau multiple modul
-material.checkRole = function(){
-    ajaxPost("<?php echo site_url('pabrik/AksesController/getAkses')?>",
+// ===================== FUNGSI LOAD AKSES =====================
+// Mengambil data akses untuk role tertentu dan menampilkannya di tabel
+// @param role: role yang akan dimuat aksesnya
+// Dikembangkan: bisa tambahkan fitur untuk copy akses dari role lain
+material.loadAkses = function(role){
+    // Ambil data akses dari server
+    // Dikembangkan: bisa tambahkan caching untuk mempercepat loading
+    ajaxPost(
+        "<?php echo site_url('pabrik/AksesController/getAkses')?>",
         {
-            role : material.role() // Role dari session
+            role : role
         },
-        function(rows){
-            // Cari akses untuk modul Supplier (id_modul = 4)
-            // Dikembangkan: bisa dibuat dinamis berdasarkan modul yang aktif
-            var akses = rows.find(function(item){
-                return item.id_modul == 4;
+        function(res){
+            // Reset ListAkses
+            material.ListAkses([]);
+            
+            // Loop data dan push ke ListAkses dengan observable
+            // Dikembangkan: bisa tambahkan sorting atau grouping modul
+            ko.utils.arrayForEach(res,function(item){
+                material.ListAkses.push({
+                    id_modul : item.id_modul,
+                    nama_modul : item.nama_modul,
+                    // Konversi boolean ke observable untuk two-way binding
+                    can_view : ko.observable(item.can_view == 1),
+                    can_insert : ko.observable(item.can_insert == 1),
+                    can_update : ko.observable(item.can_update == 1),
+                    can_delete : ko.observable(item.can_delete == 1)
+                });
             });
-            if(akses){
-                // Set hak akses berdasarkan data dari database
-                material.canView(Number(akses.can_view)===1);
-                material.canInsert(Number(akses.can_insert)===1);
-                material.canUpdate(Number(akses.can_update)===1);
-                material.canDelete(Number(akses.can_delete)===1);
-            }
-            // Debug: cek hak akses yang didapat
-            console.log("canInsert", material.canInsert());
-            console.log("canUpdate", material.canUpdate());
-            console.log("canDelete", material.canDelete());
         }
     );
-};
+}
 </script>
 
 <!-- ===================== TAMPILAN HTML ===================== -->
-<!-- Layout untuk halaman manajemen supplier -->
-<!-- Dikembangkan: bisa ditambah breadcrumb, statistik supplier, atau grafik -->
+<!-- Layout untuk halaman manajemen akses/role -->
+<!-- Dikembangkan: bisa ditambah breadcrumb, statistik role, atau grafik -->
 <div class="content-wrapper">
 
     <!-- ===================== HEADER HALAMAN ===================== -->
@@ -232,7 +227,7 @@ material.checkRole = function(){
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Modul Supplier</h1>
+                    <h1>Modul Akses</h1>
                 </div>
             </div>
         </div>
@@ -245,14 +240,9 @@ material.checkRole = function(){
                 <div class="col-md-12">
                     
                     <!-- ===================== NAVIGASI TAB ===================== -->
-                    <!-- Tab navigasi antara Form dan List Data -->
-                    <!-- Dikembangkan: bisa tambahkan tab untuk import/export data supplier -->
+                    <!-- Tab navigasi (hanya list yang aktif) -->
+                    <!-- Dikembangkan: bisa tambahkan tab untuk import/export akses -->
                     <ul class="nav nav-tabs customtab" id="tabnavform">
-                        <li class="nav-item">
-                            <a class="nav-link" href="#tabform" data-toggle="tab" data-bind="visible: canInsert">
-                                Form
-                            </a>
-                        </li>
                         <li class="nav-item">
                             <a class="nav-link active" href="#tablist" data-toggle="tab">
                                 List
@@ -264,15 +254,15 @@ material.checkRole = function(){
                     <div class="content tab-content" id="tabnavform-content">
                         
                         <!-- ===================== TAB FORM ===================== -->
-                        <!-- Form untuk tambah/edit data supplier -->
-                        <!-- Dikembangkan: bisa tambahkan input untuk NPWP, kontak person, atau kategori -->
+                        <!-- Form untuk edit akses role -->
+                        <!-- Dikembangkan: bisa ditambah fitur preview atau validasi role -->
                         <div class="tab-pane active" id="tabform">
                             <div class="card card-primary">
                                 <div class="card-body p-20 animated fadeIn m">
                                     
                                     <!-- ===================== TOMBOL AKSI FORM ===================== -->
-                                    <!-- Button untuk save, back, dan delete -->
-                                    <!-- Dikembangkan: bisa tambahkan tombol reset atau duplicate -->
+                                    <!-- Button untuk back dan save -->
+                                    <!-- Dikembangkan: bisa tambahkan tombol reset akses ke default -->
                                     <div class="row p-t-23 margMin">
                                         <div class="col-md-12 margMin">
                                             <div class="form-group ">
@@ -291,71 +281,67 @@ material.checkRole = function(){
                                                         <i class="fa fa-save"></i> 
                                                     </span>
                                                 </button>
-                                                
-                                                <!-- Tombol Hapus (hanya saat mode Update dan punya hak akses) -->
-                                                <button class="btn btn-sm btn-danger" 
-                                                        data-bind="click:function(){remove(Recordmaterial.id_supplier());}, visible: Mode() == 'Update' && canDelete()" 
-                                                        data-toggle="tooltip" data-placement="top" data-original-title="hapus">
-                                                    <i class="fa fa-trash"></i>
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <!-- ===================== FIELD FORM ===================== -->
-                                    <!-- Dikembangkan: bisa tambahkan validasi inline atau tooltip help -->
-                                    <div class="card-body" data-bind="with:Recordmaterial">
-                                        
-                                        <!-- Field: NAMA SUPPLIER -->
-                                        <!-- Dikembangkan: bisa tambahkan validasi minimal panjang karakter -->
-                                        <div class="form-group">
-                                            <label for="level">nama_supplier</label>
-                                            <input type="text" name="level" class="form-control" 
-                                                   data-bind="value:nama_supplier" id="idinstansi" 
-                                                   placeholder="Masukkan nama supplier">
+                                    <!-- ===================== TABEL AKSES ===================== -->
+                                    <!-- Tabel untuk mengatur hak akses per modul -->
+                                    <!-- Dikembangkan: bisa tambahkan grouping modul atau filter modul -->
+                                    <div class="row mt-3">
+                                        <div class="col-md-12">
+                                            <table class="table table-bordered table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Modul</th>
+                                                        <th class="text-center">View</th>
+                                                        <th class="text-center">Add</th>
+                                                        <th class="text-center">Edit</th>
+                                                        <th class="text-center">Delete</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody data-bind="foreach: ListAkses">
+                                                    <tr>
+                                                        <!-- Nama Modul -->
+                                                        <td data-bind="text:nama_modul"></td>
+                                                        
+                                                        <!-- Checkbox View -->
+                                                        <td class="text-center">
+                                                            <input type="checkbox" data-bind="checked: can_view">
+                                                        </td>
+                                                        
+                                                        <!-- Checkbox Add/Insert -->
+                                                        <td class="text-center">
+                                                            <input type="checkbox" data-bind="checked: can_insert">
+                                                        </td>
+                                                        
+                                                        <!-- Checkbox Edit/Update -->
+                                                        <td class="text-center">
+                                                            <input type="checkbox" data-bind="checked: can_update">
+                                                        </td>
+                                                        
+                                                        <!-- Checkbox Delete -->
+                                                        <td class="text-center">
+                                                            <input type="checkbox" data-bind="checked: can_delete">
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
-                                        
-                                        <!-- Field: ALAMAT -->
-                                        <!-- Dikembangkan: bisa tambahkan autocomplete alamat atau validasi -->
-                                        <div class="form-group">
-                                            <label for="alamat">alamat</label>
-                                            <input type="text" name="alamat" class="form-control" 
-                                                   data-bind="value:alamat" id="alamat" 
-                                                   placeholder="Masukkan alamat">
-                                        </div>
-                                        
-                                        <!-- Field: TELEPON -->
-                                        <!-- Dikembangkan: bisa tambahkan validasi format nomor telepon -->
-                                        <div class="form-group">
-                                            <label for="telepon">telepon</label>
-                                            <input type="text" name="telepon" class="form-control" 
-                                                   data-bind="value:telepon" id="telepon" 
-                                                   placeholder="Masukkan telepon">
-                                        </div>
-                                        
-                                        <!-- Field: EMAIL -->
-                                        <!-- Dikembangkan: bisa tambahkan validasi format email -->
-                                        <div class="form-group">
-                                            <label for="email">email</label>
-                                            <input type="email" name="email" class="form-control" 
-                                                   data-bind="value:email" id="email" 
-                                                   placeholder="Masukkan email">
-                                        </div>
-                                    </div> <!-- end card-body Recordmaterial -->
+                                    </div>
                                 </div>
                             </div>
                         </div> <!-- end tabform -->
                         
                         <!-- ===================== TAB LIST ===================== -->
-                        <!-- Tabel untuk menampilkan semua data supplier -->
+                        <!-- Tabel untuk menampilkan semua role -->
                         <!-- Dikembangkan: bisa tambahkan export Excel, print, atau column visibility -->
                         <div class="tab-pane card card-white" id="tablist">
                             <div class="card-body p-20" data-bind="with:material">
                                 <div class="row p-t-23 ">
-                                    
                                     <!-- ===================== FILTER DATA ===================== -->
                                     <!-- Panel filter untuk pencarian data -->
-                                    <!-- Dikembangkan: bisa tambahkan filter berdasarkan status atau kategori -->
+                                    <!-- Dikembangkan: bisa tambahkan filter berdasarkan jumlah user -->
                                     <div class="col-sm-4 col-md-2">
                                         <fieldset class="form-group">
                                             <select name="" data-bind="
@@ -373,7 +359,7 @@ material.checkRole = function(){
                                                         if (event.key === 'Enter') material.filtermaterial();
                                                     }}" id="" placeholder="Filter by data" class="form-control">
                                             <p>
-                                                <small class="text-muted">ketik <i>yang anda mau cari</i> lalu <b>Enter</b></small>
+                                                <small class="text-muted">Contoh: ketik <i>andi rudiansyah</i> lalu <b>Enter</b></small>
                                             </p>
                                         </div>
                                     </div>
@@ -391,20 +377,17 @@ material.checkRole = function(){
                                     </div>
                                     <!-- ./filter -->
                                     
-                                    <!-- ===================== TABEL DATA SUPPLIER ===================== -->
-                                    <!-- DataTable untuk menampilkan list supplier -->
+                                    <!-- ===================== TABEL DATA ROLE ===================== -->
+                                    <!-- DataTable untuk menampilkan list role -->
                                     <!-- Dikembangkan: bisa tambahkan sorting, pagination, atau row selection -->
                                     <div class="col-md-12">
                                         <div class="table-responsive m-t-40 animated fadeIn">
                                             <table id="myTable" width="100%" class="table table-bordered table-striped ">
                                                 <thead>
                                                     <tr>
-                                                        <th>id_supplier</th>
-                                                        <th>nama_supplier</th>
-                                                        <th>alamat</th>
-                                                        <th>telepon</th>
-                                                        <th>email</th>
-                                                        <th>Action</th>
+                                                        <th>ROLE</th>
+                                                        <th>JUMLAH USER</th>
+                                                        <th>ACTION</th>
                                                     </tr>
                                                 </thead>
                                             </table>
@@ -428,13 +411,9 @@ material.checkRole = function(){
     $(document).ready(function() {
         model.Processing(true);
         
-        // Inisialisasi: Cek hak akses user
-        // Dikembangkan: bisa ditambah loading data master lainnya (kategori supplier, dll.)
-        material.checkRole();
-        
         // Set tab default
         model.activetab(1);
-
+        
         // ===================== INISIALISASI DATATABLE =====================
         // Konfigurasi DataTable untuk server-side processing
         // Dikembangkan: bisa ditambah opsi export, responsive, atau scroll
@@ -442,7 +421,7 @@ material.checkRole = function(){
             "processing": true,
             "serverSide": true,
             "ajax": {
-                "url": "<?php echo base_url('pabrik/SupplierController/getData') ?>",
+                "url": "<?php echo base_url('pabrik/AksesController/getData') ?>",
                 "type": "POST",
                 "data": function(d) {
                     // Kirim data filter ke server
@@ -463,32 +442,14 @@ material.checkRole = function(){
             },
             "searching": false, // Nonaktifkan search bawaan DataTable
             "columns": [
-                { "data": "id_supplier" }, // Kolom ID Supplier
-                { "data": "nama_supplier" }, // Kolom Nama Supplier
-                { "data": "alamat" }, // Kolom Alamat
-                { "data": "telepon" }, // Kolom Telepon
-                { "data": "email" }, // Kolom Email
+                { "data": "role" }, // Kolom role
+                { "data": "jumlah_user" }, // Kolom jumlah user dengan role tersebut
                 {
-                    "data": "id_supplier",
-                    "render": function(data) {
-                        // Render tombol aksi berdasarkan hak akses
-                        var tombol = "";
-                        
-                        // Tombol Edit (jika punya akses update)
-                        if(material.canUpdate()){
-                            tombol += "<button class='btn btn-sm btn-info' onClick='material.selectdata(\"" + data + "\")'><i class='fa fa-edit'></i></button> ";
-                        }
-                        
-                        // Tombol Delete (jika punya akses delete)
-                        if(material.canDelete()){
-                            tombol += "<button class='btn btn-sm btn-danger' onClick='material.remove(\"" + data + "\")'><i class='fa fa-trash'></i></button>";
-                        }
-                        
-                        // Kalau tidak punya hak apa pun
-                        if(tombol == ""){
-                            return "-";
-                        }
-                        return tombol;
+                    "data": "role",
+                    "render": function(data, type, full, meta) {
+                        // Tombol Edit untuk mengatur akses
+                        // Dikembangkan: bisa tambahkan tombol delete atau copy akses
+                        return "<button class='btn btn-sm btn-info' onClick='material.selectdata(\"" + data + "\")'><i class='fa fa-edit'></i></button> &nbsp;</i></button>";
                     }
                 }
             ],
@@ -496,3 +457,40 @@ material.checkRole = function(){
         model.Processing(false);
     });
 </script>
+
+<style>
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+.switch input { display: none; }
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #ccc;
+  transition: .4s;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px; width: 18px;
+  left: 3px; bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #28a745;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+</style>
