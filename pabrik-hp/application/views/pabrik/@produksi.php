@@ -85,11 +85,34 @@ material.back = function() {
 // Menyiapkan form untuk menambah data baru
 // Dikembangkan: bisa tambahkan default value seperti tanggal hari ini
 material.tambah = function() {
-    ko.mapping.fromJS(model.masterModel, material.Recordmaterial); // Reset form
-    material.Mode(''); // Set mode tambah
-    $('#tabnavform a[href="#tabform"]').tab('show'); // Pindah ke tab form
-}
 
+    // Reset form
+    ko.mapping.fromJS(model.masterModel, material.Recordmaterial);
+
+    // ==============================
+    // SET USER YANG SEDANG LOGIN
+    // ==============================
+    material.Recordmaterial.id_karyawan(
+        "<?= $this->session->userdata('id_karyawan'); ?>"
+    );
+
+    // ==============================
+    // SET TANGGAL LOGIN
+    // ==============================
+    material.Recordmaterial.tanggal_produksi(
+        "<?= date('Y-m-d', strtotime($this->session->userdata('login_at'))); ?>"
+    );
+
+    // Default jumlah selesai
+    material.Recordmaterial.jumlah_selesai(0);
+
+    // Default status
+    material.Recordmaterial.status('Perakitan');
+
+    material.Mode('');
+
+    $('#tabnavform a[href="#tabform"]').tab('show');
+}
 // ===================== FUNGSI SELECT DATA =====================
 // Mengambil data produksi berdasarkan ID untuk diedit
 // @param id: ID produksi yang akan diedit
@@ -110,17 +133,28 @@ material.selectdata = function(id) {
 // Menyimpan data baru atau update data existing
 // Dikembangkan: bisa tambahkan validasi target dan jumlah selesai harus angka
 material.save = function() {
-    // Validasi: ID Produk dan ID Karyawan harus diisi
-    // Dikembangkan: tambahkan validasi untuk field lain (target, jumlah, status)
-    if (material.Recordmaterial.id_produk() == "" || material.Recordmaterial.id_karyawan() == "") {
-        swal("Peringatan!", "ID Produk dan ID Karyawan harap diisi dengan benar!", "warning");
+
+    if (material.Recordmaterial.id_produk() == "") {
+        swal(
+            "Peringatan!",
+            "Produk harus dipilih!",
+            "warning"
+        );
         return;
     }
 
-    // Konfirmasi sebelum menyimpan
+    if (material.Recordmaterial.target() == "") {
+        swal(
+            "Peringatan!",
+            "Target produksi harus diisi!",
+            "warning"
+        );
+        return;
+    }
+
     swal({
         title: "Perhatian",
-        text: "Anda akan simpan data ini?",
+        text: "Anda akan simpan data produksi ini?",
         type: "info",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
@@ -128,32 +162,56 @@ material.save = function() {
         cancelButtonText: "No!",
         closeOnConfirm: false,
         showLoaderOnConfirm: true,
+
     }, function(isConfirm) {
+
         if (isConfirm) {
+
             model.Processing(true);
 
-            // Tentukan URL berdasarkan mode (Insert atau Update)
-            // Dikembangkan: bisa tambahkan endpoint untuk bulk insert
-            var url = "<?php echo base_url('pabrik/ProduksiController/save') ?>";
-            if (material.Mode() === 'Update')
-                url = "<?php echo base_url('pabrik/ProduksiController/update') ?>";
+            var url =
+                "<?php echo base_url('pabrik/ProduksiController/save') ?>";
 
-            // Kirim data ke server
-            ajaxPost(url, material.Recordmaterial, function(res) {
-                model.Processing(false);
-                if (res.result == true || material.Mode() == "Update") {
-                    // Notifikasi sukses sesuai mode
-                    var pesan = material.Mode() == "Update" ? "Data Berhasil di ubah!" : "Data Berhasil di input!";
-                    swal("Berhasil!", pesan, "success");
-                    material.back(); // Kembali ke list setelah sukses
-                } else {
-                    swal("Gagal!", "Data gagal disimpan.", "error");
+            if (material.Mode() === 'Update') {
+                url =
+                    "<?php echo base_url('pabrik/ProduksiController/update') ?>";
+            }
+
+            ajaxPost(
+                url,
+                material.Recordmaterial,
+                function(res) {
+
+                    model.Processing(false);
+
+                    if (res.result == true || material.Mode() == "Update") {
+
+                        var pesan =
+                            material.Mode() == "Update"
+                            ? "Data Berhasil diubah!"
+                            : "Data Berhasil diinput!";
+
+                        swal(
+                            "Berhasil!",
+                            pesan,
+                            "success"
+                        );
+
+                        material.back();
+
+                    } else {
+
+                        swal(
+                            "Gagal!",
+                            "Data gagal disimpan.",
+                            "error"
+                        );
+                    }
                 }
-            });
+            );
         }
     });
 }
-
 // ===================== FUNGSI DELETE =====================
 // Menghapus data produksi berdasarkan ID
 // @param id: ID produksi yang akan dihapus
@@ -351,26 +409,35 @@ material.checkRole = function(){
                                     
                                     <!-- Field: KARYAWAN (Dropdown) -->
                                     <!-- Dikembangkan: bisa tambahkan filter karyawan berdasarkan divisi -->
-                                    <div class="form-group" data-bind="with: Recordmaterial">
-                                        <label for="selectkaryawan">id_karyawan</label>
-                                        <fieldset class="form-group">
-                                            <select data-bind="
-                                                options: material.SELECTKARYAWAN,
-                                                optionsText: 'name',
-                                                optionsValue: 'value',
-                                                value: id_karyawan"
-                                                class="form-control" id="selectkaryawan">
-                                                <option value="">-- Pilih Karyawan --</option>
-                                            </select>
-                                        </fieldset>
+                                    <!-- ===================== KARYAWAN OTOMATIS ===================== -->
+                                    <div class="form-group">
+                                        <label for="inputkaryawan">Karyawan</label>
+
+                                        <input type="text"
+                                            id="inputkaryawan"
+                                            class="form-control"
+                                            value="<?= $this->session->userdata('nama_karyawan'); ?> (<?= $this->session->userdata('jabatan'); ?>)"
+                                            readonly>
+
+                                        <!-- ID karyawan disimpan di Knockout -->
+                                        <input type="hidden"
+                                            data-bind="value: id_karyawan">
                                     </div>
                                     
                                     <!-- Field: TANGGAL PRODUKSI -->
                                     <!-- Dikembangkan: bisa default dengan tanggal hari ini -->
-                                    <div class="form-group" data-bind="with: Recordmaterial">
-                                        <label for="inputtanggal">tanggal_produksi</label>
-                                        <input type="date" id="inputtanggal" name="tanggal_produksi"
+                                    <!-- ===================== TANGGAL PRODUKSI OTOMATIS ===================== -->
+                                    <div class="form-group">
+                                        <label for="inputtanggal">Tanggal Produksi</label>
+
+                                        <input type="date"
+                                            id="inputtanggal"
                                             class="form-control"
+                                            value="<?= date('Y-m-d', strtotime($this->session->userdata('login_at'))); ?>"
+                                            disabled>
+
+                                        <!-- Nilai tanggal untuk Knockout -->
+                                        <input type="hidden"
                                             data-bind="value: tanggal_produksi">
                                     </div>
                                     
@@ -398,16 +465,19 @@ material.checkRole = function(){
                                     <!-- Dikembangkan: bisa diubah menjadi dropdown atau badge -->
                                     <div class="form-group" data-bind="with: Recordmaterial">
                                         <label>STATUS</label>
-                                        <div>
-                                            <label>
-                                                <input type="radio" name="status" value="Perakitan" data-bind="checked: status"> Perakitan
-                                            </label>
-                                            <label style="margin-left:15px;">
-                                                <input type="radio" name="status" value="QC" data-bind="checked: status"> QC
-                                            </label>
-                                            <label style="margin-left:15px;">
-                                                <input type="radio" name="status" value="Selesai" data-bind="checked: status"> Selesai
-                                            </label>
+                                        <div class="custom-control custom-radio">
+                                            <input class="custom-control-input" type="radio" id="Perakitan" name="customRadio" checked="">
+                                            <label for="Perakitan" class="custom-control-label">Perakitan</label>
+                                        </div>
+
+                                        <div class="custom-control custom-radio">
+                                            <input class="custom-control-input" type="radio" id="QC" name="customRadio" disabled="">
+                                            <label for="QC" class="custom-control-label">QC</label>
+                                        </div>
+
+                                        <div class="custom-control custom-radio">
+                                            <input class="custom-control-input" type="radio" id="Selesai" name="customRadio" disabled="">
+                                            <label for="Selesai" class="custom-control-label">Selesai</label>
                                         </div>
                                     </div>
 

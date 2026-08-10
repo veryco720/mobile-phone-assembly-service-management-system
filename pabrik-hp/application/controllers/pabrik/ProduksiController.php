@@ -68,10 +68,56 @@ class ProduksiController extends CI_Controller
     // - Cek ketersediaan produk & karyawan
     function save()
     {
-        cekAkses(7, 'can_insert'); // Cek akses insert
-        $data   = json_decode(file_get_contents("php://input"), true);
-        $insert = $this->model->insertData($data);
-        echo json_encode(["result" => $insert]);
+        cekAkses(7, 'can_insert');
+
+        // Ambil data dari frontend
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        // ==============================
+        // AMBIL USER DARI SESSION
+        // ==============================
+        $id_karyawan = $this->session->userdata('id_karyawan');
+        $login_at    = $this->session->userdata('login_at');
+
+        // Pastikan user memiliki karyawan
+        if (empty($id_karyawan)) {
+            echo json_encode([
+                'result'  => false,
+                'message' => 'Data karyawan pada akun login tidak ditemukan.'
+            ]);
+            return;
+        }
+
+        // ==============================
+        // TANGGAL PRODUKSI = TANGGAL LOGIN
+        // ==============================
+        $tanggal_produksi = date(
+            'Y-m-d H:i:s',
+            strtotime($login_at)
+        );
+
+        // ==============================
+        // DATA YANG BOLEH DARI FORM
+        // ==============================
+        $insertData = [
+            'id_produk'        => $data['id_produk'],
+            'id_karyawan'      => $id_karyawan,
+            'tanggal_produksi' => $tanggal_produksi,
+            'target'           => $data['target'],
+            'jumlah_selesai'   => !empty($data['jumlah_selesai'])
+                                    ? $data['jumlah_selesai']
+                                    : 0,
+            'status'           => !empty($data['status'])
+                                    ? $data['status']
+                                    : 'Perakitan'
+        ];
+
+        // Simpan
+        $insert = $this->model->insertData($insertData);
+
+        echo json_encode([
+            "result" => $insert
+        ]);
     }
 
     // ===================== UPDATE DATA =====================
