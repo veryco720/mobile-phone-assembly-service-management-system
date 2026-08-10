@@ -1,4 +1,10 @@
+
 <div class="content-wrapper">
+
+<!-- ============================================================
+     SECTION: HEADER
+     Menampilkan judul halaman
+     ============================================================ -->
 <section class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
@@ -11,10 +17,14 @@
 
 <section class="content">
 
-
-
+<!-- ============================================================
+     ROW 1: STATISTIK UTAMA (4 KOLOM)
+     - Total Produk
+     - Total Karyawan
+     - Total Supplier
+     - Total Komponen
+     ============================================================ -->
 <div class="row">
-
     <div class="col-lg-3 col-6">
         <div class="small-box bg-info">
             <div class="inner">
@@ -62,12 +72,16 @@
             </div>
         </div>
     </div>
-
 </div>
 
-
+<!-- ============================================================
+     ROW 2: STATISTIK PRODUKSI (4 KOLOM)
+     - Produksi Berjalan
+     - Quality Control
+     - Produksi Selesai
+     - Total Stok Gudang
+     ============================================================ -->
 <div class="row">
-
     <div class="col-lg-3 col-6">
         <div class="small-box bg-primary">
             <div class="inner">
@@ -115,14 +129,13 @@
             </div>
         </div>
     </div>
-
 </div>
 
-
-
-
+<!-- ============================================================
+     CARD: PRODUKSI TERBARU
+     Menampilkan 10 data produksi terakhir dengan status
+     ============================================================ -->
 <div class="card card-primary">
-
     <div class="card-header">
         <h3 class="card-title">
             <i class="fas fa-industry"></i>
@@ -131,11 +144,8 @@
     </div>
 
     <div class="card-body table-responsive">
-
         <table class="table table-bordered table-hover">
-
             <thead class="bg-light">
-
                 <tr>
                     <th width="50">No</th>
                     <th>Produk</th>
@@ -145,33 +155,22 @@
                     <th>Selesai</th>
                     <th>Status</th>
                 </tr>
-
             </thead>
-
             <tbody>
-
             <?php if(!empty($produksi_terbaru)){ ?>
-
                 <?php $no=1; foreach($produksi_terbaru as $row){ ?>
-
                 <tr>
-
                     <td><?= $no++ ?></td>
-
                     <td><?= $row->nama_produk ?></td>
-
                     <td><?= $row->nama_karyawan ?></td>
-
                     <td><?= date('d-m-Y',strtotime($row->tanggal_produksi)); ?></td>
-
                     <td><?= $row->target ?></td>
-
                     <td><?= $row->jumlah_selesai ?></td>
-
                     <td>
-
                         <?php
-
+                        // ========================================
+                        // STATUS BADGE: Perakitan = Biru, QC = Kuning, Selesai = Hijau
+                        // ========================================
                         if($row->status=="Perakitan"){
                             echo '<span class="badge badge-primary">Perakitan</span>';
                         }
@@ -181,33 +180,20 @@
                         else{
                             echo '<span class="badge badge-success">Selesai</span>';
                         }
-
                         ?>
-
                     </td>
-
                 </tr>
-
                 <?php } ?>
-
             <?php }else{ ?>
-
                 <tr>
-
                     <td colspan="7" class="text-center">
                         Tidak ada data produksi.
                     </td>
-
                 </tr>
-
             <?php } ?>
-
             </tbody>
-
         </table>
-
     </div>
-
 </div>
 
 </section>
