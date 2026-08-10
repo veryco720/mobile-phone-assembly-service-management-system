@@ -15,6 +15,7 @@ class UserController extends CI_Controller {
         }
     }
 
+    //untuk template
     public function index()
     {
         $data['title'] = 'Halaman User';
