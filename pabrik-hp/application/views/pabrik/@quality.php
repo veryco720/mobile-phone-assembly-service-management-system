@@ -80,8 +80,17 @@ material.back = function(tab) {
     model.activetab(tab); // Pindah ke tab yang ditentukan
 }
 
+// ===================== FUNGSI TAMBAH =====================
+// Membuka tab Form dalam mode Tambah (insert data baru)
+// Dikembangkan: bisa tambahkan default value (misal tanggal_qc = hari ini)
+material.tambah = function() {
+    material.Mode('');
+    ko.mapping.fromJS(model.masterModel, material.Recordmaterial); // Reset form ke default
+    model.activetab(0); // Pindah ke tab Form
+}
+
 // ===================== FUNGSI SELECT DATA =====================
-// Mengambil data QC berdasarkan ID untuk diedit
+// Mengambil data QC berdasarkan ID untuk diedit, lalu pindah ke tab Form
 // @param id: ID QC yang akan diedit
 // Dikembangkan: bisa tambahkan loading animasi atau disabled form saat proses
 material.selectdata = function(id) {
@@ -93,6 +102,7 @@ material.selectdata = function(id) {
         material.back(0); // Pindah ke tab form
         ko.mapping.fromJS(res[0], material.Recordmaterial); // Isi form dengan data
         material.Mode("Update"); // Ubah mode menjadi Update
+        
         model.Processing(false);
     });
 }
@@ -293,11 +303,6 @@ material.checkRole = function(){
                     <!-- Dikembangkan: bisa tambahkan tab untuk dashboard QC atau grafik -->
                     <ul class="nav nav-tabs customtab" id="tabnavform">
                         <li class="nav-item">
-                            <a class="nav-link" href="#tabform" data-toggle="tab" data-bind="visible: canInsert">
-                                Form
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link active" href="#tablist" data-toggle="tab">
                                 List
                             </a>
@@ -310,7 +315,7 @@ material.checkRole = function(){
                         <!-- ===================== TAB FORM ===================== -->
                         <!-- Form untuk tambah/edit data QC -->
                         <!-- Dikembangkan: bisa tambahkan input untuk upload bukti atau foto -->
-                        <div class="tab-pane active" id="tabform">
+                        <div class="tab-pane" id="tabform">
                             <div class="card card-primary">
                                 <div class="card-body p-20 animated fadeIn m">
                                     
@@ -320,9 +325,9 @@ material.checkRole = function(){
                                     <div class="row p-t-23 margMin">
                                         <div class="col-md-12 margMin">
                                             <div class="form-group ">
-                                                <!-- Tombol Kembali (hanya saat mode Update) -->
+                                                <!-- Tombol Kembali -->
                                                 <button class="btn btn-sm btn-warning" 
-                                                        data-bind="click:function(){back(1);}, visible: Mode() == 'Update'" 
+                                                        data-bind="click:function(){back(1);}" 
                                                         data-toggle="tooltip" data-placement="top" data-original-title="Kembali">
                                                     <i class="fa fa-arrow-left"></i> 
                                                 </button>
@@ -331,9 +336,7 @@ material.checkRole = function(){
                                                 <button class="btn btn-sm btn-info" 
                                                         data-bind="click:save" 
                                                         data-toggle="tooltip" data-placement="top" data-original-title="simpan">
-                                                    <span data-bind="data-original-title:Mode">
-                                                        <i class="fa fa-save"></i> 
-                                                    </span>
+                                                    <i class="fa fa-save"></i> 
                                                 </button>
                                                 
                                                 <!-- Tombol Hapus (hanya saat mode Update dan punya hak akses) -->
@@ -353,14 +356,14 @@ material.checkRole = function(){
                                         <!-- Field: PRODUKSI (Dropdown) -->
                                         <!-- Dikembangkan: bisa tambahkan autocomplete atau search di dropdown -->
                                         <div class="form-group">
-                                            <label for="level">id_produksi</label>
+                                            <label for="id_produksi">ID PRODUKSI</label>
                                             <fieldset class="form-group">
                                                 <select data-bind="
                                                     options: material.SELECTPRODUKSI,
                                                     optionsText: 'name',
                                                     optionsValue: 'value',
                                                     value:id_produksi"
-                                                    class="form-control" id="basicSelect">
+                                                    class="form-control" id="id_produksi">
                                                     <option value="">-- Pilih Produksi --</option>
                                                 </select>
                                             </fieldset>
@@ -369,48 +372,43 @@ material.checkRole = function(){
                                         <!-- Field: KARYAWAN (Dropdown) -->
                                         <!-- Dikembangkan: bisa tambahkan filter karyawan QC -->
                                         <div class="form-group">
-                                            <label for="alamat">id_karyawan</label>
-                                            <fieldset class="form-group">
-                                                <select data-bind="
-                                                    options: material.SELECTKARYAWAN,
-                                                    optionsText: 'name',
-                                                    optionsValue: 'value',
-                                                    value:id_karyawan"
-                                                    class="form-control" id="basicSelect">
-                                                    <option value="">-- Pilih Karyawan --</option>
-                                                </select>
-                                            </fieldset>
+                                            <label for="id_karyawan">ID KARYAWAN</label>
+                                            <input type="text"
+                                                  id="inputkaryawan"
+                                                  class="form-control"
+                                                  value="<?= $this->session->userdata('nama_karyawan'); ?> (<?= $this->session->userdata('jabatan'); ?>)"
+                                                  readonly>
+                                            <input type="hidden"
+                                                  data-bind="value:id_karyawan">
                                         </div>
                                         
                                         <!-- Field: HASIL QC -->
                                         <!-- Dikembangkan: bisa diubah menjadi dropdown atau radio button -->
                                         <div class="form-group">
-                                            <label for="hasil_qc">hasil_qc</label>
+                                            <label for="hasil_qc">HASIL QC</label>
                                             <textarea id="hasil_qc" name="hasil_qc" class="form-control" 
                                                       data-bind="value:hasil_qc" 
-                                                      placeholder="Masukkan HASIL QC (Lulus/Tidak Lulus/Perlu Perbaikan)">
-                                                I am a comment
-                                            </textarea>
+                                                      placeholder="Masukkan HASIL QC (Lulus/Tidak Lulus/Perlu Perbaikan)"></textarea>
                                         </div>
                                         
                                         <!-- Field: CATATAN -->
                                         <!-- Dikembangkan: bisa tambahkan rich text editor -->
                                         <div class="form-group">
-                                            <label for="catatan">catatan</label>
+                                            <label for="catatan">CATATAN</label>
                                             <textarea id="catatan" name="catatan" class="form-control" 
                                                       data-bind="value:catatan" 
-                                                      placeholder="Masukkan CATATAN">
-                                                I am a comment
-                                            </textarea>
+                                                      placeholder="Masukkan CATATAN"></textarea>
                                         </div>
                                         
                                         <!-- Field: TANGGAL QC -->
                                         <!-- Dikembangkan: bisa default dengan tanggal hari ini -->
                                         <div class="form-group">
-                                            <label for="tanggal_qc">tanggal_qc</label>
-                                            <input type="date" name="tanggal_qc" class="form-control" 
-                                                   data-bind="value:tanggal_qc" id="tanggal_qc" 
-                                                   placeholder="Masukkan TANGGAL QC">
+                                            <label for="tanggal_qc">TANGGAL QC</label>
+                                            <input type="date"
+                                                   id="inputtanggal"
+                                                   class="form-control"
+                                                   value="<?= date('Y-m-d', strtotime($this->session->userdata('login_at'))); ?>"
+                                                   disabled>
                                         </div>
                                     </div> <!-- end card-body Recordmaterial -->
                                 </div>
@@ -420,7 +418,7 @@ material.checkRole = function(){
                         <!-- ===================== TAB LIST ===================== -->
                         <!-- Tabel untuk menampilkan semua data QC -->
                         <!-- Dikembangkan: bisa tambahkan export Excel, print, atau column visibility -->
-                        <div class="tab-pane card card-white" id="tablist">
+                        <div class="tab-pane active card card-white" id="tablist">
                             <div class="card-body p-20" data-bind="with:material">
                                 <div class="row p-t-23 ">
                                     
@@ -457,7 +455,7 @@ material.checkRole = function(){
                                             <!-- Tombol Apply Filter -->
                                             <button class="btn btn-md btn-primary" data-bind="click:filtermaterial">
                                                 <span class="fa fa-search"></span>
-                                            </button>
+                                          
                                         </div>
                                     </div>
                                     <!-- ./filter -->
@@ -508,7 +506,7 @@ material.checkRole = function(){
         // Inisialisasi: Cek hak akses user
         material.checkRole();
         
-        // Set tab default
+        // Set tab default (1 = List)
         model.activetab(1);
 
         // ===================== INISIALISASI DATATABLE =====================
