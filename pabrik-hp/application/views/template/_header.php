@@ -68,7 +68,7 @@
     <script>
         var model = {
             Processing: ko.observable(true),
-            idlevel:  ko.observable(<?php echo $this->session->userdata('role'); ?>),
+            idlevel: ko.observable(<?= json_encode($this->session->userdata('role')); ?>),
         }
     </script>
 
