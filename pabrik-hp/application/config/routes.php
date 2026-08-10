@@ -55,11 +55,13 @@ $route['data-user'] = 'pabrik/UserController';
 $route['data-detail'] = 'pabrik/DetailController';
 $route['data-produksi'] = 'pabrik/ProduksiController';
 $route['dashboard'] = 'pabrik/DashboardController';
+$route['profil'] = 'pabrik/ProfileController';  
 $route['data-gudang'] = 'pabrik/GudangController';
 $route['data-produk'] = 'pabrik/ProdukController';
 $route['data-supplier'] = 'pabrik/SupplierController';
 $route['data-quality'] = 'pabrik/QualityController';
 $route['data-komponen'] = 'pabrik/KomponenController';
+$route['data-akses'] = 'pabrik/AksesController';
 $route['login'] = 'login/LoginController';
 $route['logout'] = 'login/LoginController/logout';
 
