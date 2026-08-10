@@ -23,7 +23,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = 'http://localhost/pabrik-hp';
+$config['base_url'] = 'http://localhost/mobile-phone-assembly-service-management-system/pabrik-hp';
 
 /*
 |--------------------------------------------------------------------------
