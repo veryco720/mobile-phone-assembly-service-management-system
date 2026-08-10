@@ -464,7 +464,9 @@ material.checkRole = function(){
                                     <!-- Field: STATUS (Radio Button) -->
                                     <!-- Dikembangkan: bisa diubah menjadi dropdown atau badge -->
                                     <div class="form-group" data-bind="with: Recordmaterial">
-                                        <label>STATUS</label>
+                                        <label>STATUS
+                                            <span class="badge bg-success" data-bind="text: status"></span>
+                                        </label>
                                         <div class="custom-control custom-radio">
                                             <input class="custom-control-input" type="radio" id="Perakitan" name="customRadio" checked="">
                                             <label for="Perakitan" class="custom-control-label">Perakitan</label>
