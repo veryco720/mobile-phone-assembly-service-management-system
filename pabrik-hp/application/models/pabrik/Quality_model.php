@@ -78,13 +78,22 @@ class Quality_model extends CI_Model
      * - Cek apakah data ada
      * - Validasi hasil_qc
      */
-    public function updateData($data)
-    {
-        $this->db->where('id_qc', $data['id_qc']);
-        $query = $this->db->update('quality_control', $data);
-        return array('result' => $query);
-    }
+   public function updateData($data)
+{
+    $id_qc = $data['id_qc'];
 
+    // Jangan ikut mengupdate primary key
+    unset($data['id_qc']);
+
+    $this->db->where('id_qc', $id_qc);
+
+    $query = $this->db->update('quality_control', $data);
+
+    return array(
+        'result' => $query,
+        'message' => $query ? 'Data berhasil diupdate.' : 'Data gagal diupdate.'
+    );
+}
     /**
      * Delete data QC
      * @param array $data (id_qc)

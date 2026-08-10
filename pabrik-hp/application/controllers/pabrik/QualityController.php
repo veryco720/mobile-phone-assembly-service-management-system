@@ -6,21 +6,25 @@ class QualityController extends CI_Controller
     // ===================== KONSTRUKTOR =====================
     // Load model, cek login & akses
     // @development: Tambah cache atau logging
-    function __construct()
-    {
-        parent::__construct();
-        $this->load->model('pabrik/Quality_model', 'model');
+   function __construct()
+{
+    parent::__construct();
 
-        // Cek login
-        if ($this->session->userdata('is_login') != true) {
-            redirect('login/LoginController');
-        }
-        // Cek akses modul quality (id_modul=9)
-        if (!cekAkses(9, 'can_view')) {
-            show_error(403, 'Anda tidak memiliki hak akses untuk melihat halaman ini');
-        }
+    // Set timezone Indonesia / WIB
+    date_default_timezone_set('Asia/Jakarta');
+
+    $this->load->model('pabrik/Quality_model', 'model');
+
+    // Cek login
+    if ($this->session->userdata('is_login') != true) {
+        redirect('login/LoginController');
     }
 
+    // Cek akses modul quality (id_modul=9)
+    if (!cekAkses(9, 'can_view')) {
+        show_error(403, 'Anda tidak memiliki hak akses untuk melihat halaman ini');
+    }
+}
     // ===================== HALAMAN INDEX =====================
     // Menampilkan halaman manajemen quality control
     // @development: Tambah breadcrumb atau statistik
@@ -127,15 +131,26 @@ class QualityController extends CI_Controller
     // @development: 
     // - Cek apakah data ada
     // - Validasi hasil_qc
-    function update()
-    {
-        cekAkses(9, 'can_update'); // Cek akses update
-        $data = json_decode(file_get_contents('php://input'), true);
-        error_log(print_r($data, true)); // Debug logging
-        $res = $this->model->updateData($data);
-        echo json_encode($res);
-    }
+   public function update()
+{
+    cekAkses(9, 'can_update');
 
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    // Debug
+    error_log("DATA UPDATE QC:");
+    error_log(print_r($data, true));
+
+    // ID karyawan mengikuti user yang sedang login
+    $data['id_karyawan'] = $this->session->userdata('id_karyawan');
+
+    // Waktu saat update
+    $data['tanggal_qc'] = date('Y-m-d H:i:s');
+
+    $res = $this->model->updateData($data);
+
+    echo json_encode($res);
+}
     // ===================== DELETE DATA =====================
     // Hapus data quality control
     // @param POST: id

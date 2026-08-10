@@ -382,15 +382,6 @@ material.checkRole = function(){
                                                   data-bind="value:id_karyawan">
                                         </div>
                                         
-                                        <!-- Field: HASIL QC -->
-                                        <!-- Dikembangkan: bisa diubah menjadi dropdown atau radio button -->
-                                        <div class="form-group">
-                                            <label for="hasil_qc">HASIL QC</label>
-                                            <textarea id="hasil_qc" name="hasil_qc" class="form-control" 
-                                                      data-bind="value:hasil_qc" 
-                                                      placeholder="Masukkan HASIL QC (Lulus/Tidak Lulus/Perlu Perbaikan)"></textarea>
-                                        </div>
-                                        
                                         <!-- Field: CATATAN -->
                                         <!-- Dikembangkan: bisa tambahkan rich text editor -->
                                         <div class="form-group">
@@ -409,6 +400,23 @@ material.checkRole = function(){
                                                    class="form-control"
                                                    value="<?= date('Y-m-d', strtotime($this->session->userdata('login_at'))); ?>"
                                                    disabled>
+                                        </div>
+                                        <!-- Field: HASIL QC -->
+                                        <!-- Dikembangkan: bisa diubah menjadi dropdown atau radio button -->
+                                        <div class="form-group">
+                                            <label for="hasil_qc">HASIL QC</label>
+                                            <div>
+                                            <label>
+                                                <input type="radio" name="hasil_qc" value="Tidak Lulus" data-bind="checked: hasil_qc"> Tidak Lulus
+                                            </label>
+                                            <label style="margin-left:15px;">
+                                                <input type="radio" name="hasil_qc" value="Perlu Perbaikan" data-bind="checked: hasil_qc"> Perlu Perbaikan
+                                            </label>
+                                            <label style="margin-left:15px;">
+                                                <input type="radio" name="hasil_qc" value="Lulus" data-bind="checked: hasil_qc"> Lulus
+                                            </label>
+                                        </div>
+                                            
                                         </div>
                                     </div> <!-- end card-body Recordmaterial -->
                                 </div>
