@@ -232,7 +232,7 @@ material.checkRole = function(){
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Modul Supplier</h1>
+                    <h1>Supplier</h1>
                 </div>
             </div>
         </div>
